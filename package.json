@@ -2,8 +2,15 @@
   "name": "qw",
   "version": "1.0.0",
   "main": "index.js",
+
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    
+    "start": "node src/index.js",
+    
+    "db": "json-server --watch db.json --port=4000",
+    "dev": "node --watch ./src/index.js"
   },
   "keywords": [],
   "author": "",
