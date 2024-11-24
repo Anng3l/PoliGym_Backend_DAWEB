@@ -1,27 +1,40 @@
 {
-    "users": [
-        {
-
-        }
-    ],
-    "rutinas": [
-        {
-
-        }
-    ],
-    "progresos": [
-        {
-
-        }
-    ],
-    "autenticacion": [
-        {
-
-        }
-    ],
-    "asistencias": [
-        {
-            
-        }
-    ]
+  "users": [
+    {
+      "id": "1",
+      "nombre": "Jose",
+      "apellido": "asd",
+      "email": "josea@gmail.com",
+      "password": "123"
+    },
+    {
+      "id": "02",
+      "nombre": "Carlos",
+      "apellido": "qwe",
+      "email": "carlos@gmail.com",
+      "password": "098"
+    },
+    {
+      "id": "ebd1888d-3665-49ab-bdd6-f8b106a0e930",
+      "password": "$2b$10$LdDeKRgg6Auybk2Z/.zHeuGs8XMFstZWWuwU6s/XfRPK4BtqqmTVW",
+      "email": "jose@gmail.com"
+    },
+    {
+      "id": "e436071e-d6be-4ca3-9c7b-7da3dbd845e9",
+      "password": "$2b$10$NJLj0vRWZnE50PV33iRmUO.LrXgvLgszJamKz39qlKQ7G5ZEdhTmK",
+      "email": "josezxc@gmail.com"
+    }
+  ],
+  "rutinas": [
+    {}
+  ],
+  "progresos": [
+    {}
+  ],
+  "autenticacion": [
+    {}
+  ],
+  "asistencias": [
+    {}
+  ]
 }

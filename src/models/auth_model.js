@@ -8,7 +8,7 @@ const autenticacion = {
             const peticion = await fetch(url);
             const data = await peticion.json();
 
-            const user = data.find((user)=> {user.email === email});
+            const user = data.find(user=>user.email === email);
 
             if (!user)
             {
@@ -19,7 +19,7 @@ const autenticacion = {
 
             if (user && passwordMatch)
             {
-                return true;
+                return user;
             }
             else
             {
@@ -39,7 +39,7 @@ const autenticacion = {
         try
         {
             const peticion = await fetch(url, {
-                method: "PUT",
+                method: "POST",
                 body: JSON.stringify(newUser),
                 headers: {"Content-Type":"application/json"}
             });

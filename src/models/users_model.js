@@ -30,7 +30,7 @@ const usuarios = {
         try
         {
             const peticion = await fetch(url, {
-                method: "PUT",
+                method: "POST",
                 body: JSON.stringify(newUser),
                 headers: {"Content-Type":"application/json"}
             });

@@ -1,13 +1,11 @@
 import { Router } from "express";
+import { logInController, registerController } from "../controllers/auth_controller.js";
 
 const router = Router();
 
-router.get("/", (req, res) =>{
-    res.send("Raíz de Autenticación");
-})
-
-//router.put("/login", "");
-//router.put("/register", "");
+//Rutas públicas
+router.post("/login", logInController);
+router.post("/register", registerController);
 
 //router.put("/recovery", "");
 

@@ -2,13 +2,10 @@
   "name": "qw",
   "version": "1.0.0",
   "main": "index.js",
-
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    
     "start": "node src/index.js",
-    
     "db": "json-server --watch db.json --port=4000",
     "dev": "node --watch ./src/index.js"
   },
@@ -20,6 +17,7 @@
     "bcrypt": "^5.1.1",
     "express": "^4.21.1",
     "json-server": "^1.0.0-beta.3",
+    "jsonwebtoken": "^9.0.2",
     "uuid": "^11.0.3"
   }
 }
