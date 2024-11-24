@@ -23,18 +23,39 @@
       "id": "e436071e-d6be-4ca3-9c7b-7da3dbd845e9",
       "password": "$2b$10$NJLj0vRWZnE50PV33iRmUO.LrXgvLgszJamKz39qlKQ7G5ZEdhTmK",
       "email": "josezxc@gmail.com"
+    },
+    {
+      "id": "5812",
+      "password": "$2b$10$7L4UIDJtO.NKsPGnP65gX.ZghWWvT7MG//0WDjIuPB8gTIidwBGcu",
+      "name": "angel",
+      "email": "angel@gmail.com"
+    },
+    {
+      "name": "JOSE------",
+      "email": "jose777@gmail.com",
+      "password": "099",
+      "edit": "aaaaaaaaaaaaaaa",
+      "id": "f9e6"
     }
   ],
   "rutinas": [
-    {}
+    {
+      "id": "8617"
+    }
   ],
   "progresos": [
-    {}
+    {
+      "id": "d0bc"
+    }
   ],
   "autenticacion": [
-    {}
+    {
+      "id": "3e65"
+    }
   ],
   "asistencias": [
-    {}
+    {
+      "id": "ae24"
+    }
   ]
 }

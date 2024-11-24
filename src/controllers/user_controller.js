@@ -45,7 +45,7 @@ const createUserController = async (req, res) => {
     //Llamada al modelo
     try
     {
-        const data = usuarios.createUserModel(newUserData);
+        const data = await usuarios.createUserModel(newUserData);
         res.status(200).json(data);
     }
     catch (error)

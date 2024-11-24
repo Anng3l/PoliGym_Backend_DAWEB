@@ -4,11 +4,11 @@ const createToken = async (userInfo) => {
     return jwt.sign(userInfo, "secret_key", {expiresIn: "1h"});
 };
 
-const verifyToken = async (req, res) => {
+const verifyToken = async (req, res, next) => {
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith("Bearer "))
     {
-        res.status(401).json({msg: "Token no enviado"});
+        return res.status(401).json({msg: "Token no enviado"});
     }
 
     const token = authHeader.split(" ")[1];
