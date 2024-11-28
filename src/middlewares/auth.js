@@ -1,7 +1,8 @@
 import jwt from "jsonwebtoken";
 
+
 const createToken = async (userInfo) => {
-    return jwt.sign(userInfo, "secret_key", {expiresIn: "1h"});
+    return jwt.sign(userInfo, process.env.JWT_SECRET, {expiresIn: "1h"});
 };
 
 const verifyToken = async (req, res, next) => {
@@ -13,7 +14,7 @@ const verifyToken = async (req, res, next) => {
 
     const token = authHeader.split(" ")[1];
 
-    jwt.verify(token, "secret_key", (error, decoded) => {
+    jwt.verify(token, process.env.JWT_SECRET, (error, decoded) => {
         if (error)
         {
             return res.status(401).json({msg: "Fallo al autenticar"});

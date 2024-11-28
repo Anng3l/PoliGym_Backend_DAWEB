@@ -1,5 +1,42 @@
-import bcrypt from "bcrypt";
+import mongoose, { mongo } from "mongoose";
 
+const userSchema = new mongoose.Schema({
+    id: {
+        type: String,
+        required: true,
+        unique: true
+    },
+    name: {
+        type: String,
+        required: true
+    },
+    username: {
+        type: String,
+        required: true,
+        unique: true
+    },
+    email: {
+        type: String,
+        required: true,
+        unique: true
+    },
+    password: {
+        type: String,
+        required: true
+    },
+    role: {
+        type: String,
+        required: true,
+        enum: ["administrador", "entrenador", "cliente"]
+    }
+},
+{
+    timestamps: true
+});
+
+const User = mongoose.model("User", userSchema);
+export default User;
+/*
 const autenticacion = {
     async loginUser(email, password) {
         const url = "http://localhost:4000/users";
@@ -54,4 +91,4 @@ const autenticacion = {
     }
 }
 
-export default autenticacion;
+export default autenticacion;*/
