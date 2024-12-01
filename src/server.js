@@ -31,7 +31,7 @@ app.use("/users", routerUsers);
 app.use("/rutinas", routerRutinas);
 app.use("/progresos", routerProgresos);
 app.use("/auth", routerAuth);
-app.use("/asistencia", routerAsistencias);
+app.use("/asistencias", routerAsistencias);
 
 
 
