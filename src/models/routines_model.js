@@ -1,5 +1,5 @@
 import mongoose, { mongo } from "mongoose";
-const mongoose = require("mongoose");
+
 
 // Esquema de Ejercicios
 const exerciseSchema = new mongoose.Schema({
@@ -12,7 +12,7 @@ const exerciseSchema = new mongoose.Schema({
 const routineSchema = new mongoose.Schema(
   {
     userId: { type: String, required: true },
-    coachId: { type: Int, required: true, default:0},
+    coachId: { type: String, required: true, default:0},
     name: { type: String, required: true },
     description: { type: String, required: true },
     exercises: [exerciseSchema],
@@ -25,4 +25,4 @@ const routineSchema = new mongoose.Schema(
 // Crear el modelo
 const Routine = mongoose.model("Routine", routineSchema);
 
-module.exports = Routine;
+export default Routine;

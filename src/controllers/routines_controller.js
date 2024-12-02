@@ -1,4 +1,4 @@
-import Rutinas from "../models/routines_model"
+import Rutinas from "../models/routines_model.js"
 
 // Crear una rutina
 const createRoutine = async (req, res) => {
@@ -23,7 +23,7 @@ const createRoutine = async (req, res) => {
 // Obtener todas las rutinas
 const getAllRoutines = async (req, res) => {
   try {
-    const routines = await Routine.find();
+    const routines = await Rutinas.find();
     res.status(200).json(routines); // Devuelve todas las rutinas
   } catch (error) {
     res.status(500).json({ message: "Error al obtener las rutinas", error });
@@ -34,7 +34,7 @@ const getAllRoutines = async (req, res) => {
 const getRoutineById = async (req, res) => {
   try {
     const { id } = req.params;
-    const routine = await Routine.findById(id);
+    const routine = await Rutinas.findById(id);
 
     if (!routine) {
       return res.status(404).json({ message: "Rutina no encontrada" });
@@ -85,7 +85,7 @@ const deleteRoutine = async (req, res) => {
   }
 };
 
-module.exports = {
+export {
   createRoutine,
   getAllRoutines,
   getRoutineById,

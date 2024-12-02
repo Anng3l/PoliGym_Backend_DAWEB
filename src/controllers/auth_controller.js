@@ -32,7 +32,7 @@ const logInController = async (req, res) => {
     {
         res.status(500).json({
             succes: false,
-            msg: "Error al intentar registrarse",
+            msg: "Error al intentar iniciar sesión",
             error: error.message
         });
     }
