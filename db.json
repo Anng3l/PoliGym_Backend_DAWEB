@@ -40,7 +40,17 @@
   ],
   "rutinas": [
     {
-      "id": "8617"
+      "id": "777",
+      "userId": "10101",
+      "coachId": "01",
+      "name": "Grinding muscle",
+      "exercises": [
+        {
+          "name": "Dumbbells",
+          "series": "5",
+          "repetitions": "15"
+        }
+      ]
     }
   ],
   "progresos": [
