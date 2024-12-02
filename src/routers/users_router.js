@@ -11,7 +11,7 @@ router.get("/", verifyToken, authorizedRoles("administrador", "entrenador"), get
 router.get("/:username", verifyToken, authorizedRoles("administrador", "entrenador"), getOneUserController);
 router.get("/role/:role", verifyToken, authorizedRoles("administrador", "entrenador"), getUsersByRoleController);
 router.put("/:username", verifyToken, authorizedRoles("administrador"), updateUserController);
-router.delete("/:id", verifyToken, authorizedRoles("administrador"), deleteOneUserController);
+router.delete("/:username", verifyToken, authorizedRoles("administrador"), deleteOneUserController);
 router.post("/", verifyToken, authorizedRoles("administrador"), createUserController);
 
 

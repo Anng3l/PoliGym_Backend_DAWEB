@@ -148,16 +148,18 @@ const updateUserController = async (req, res) => {
 
 
 const deleteOneUserController = async (req, res) => {
-    const { id } = req.params;
+    const { username } = req.params;
 
     try
     {
-        const data = await usuarios.deleteOneUserModel(id);
-        res.status(200).json(data);
+        const data = await User.findOneAndDelete({username});
+        res.status(200).json({msg: `Usuario ${username} eliminado correctamente`});
     }
     catch (error)
     {
-        res.status(500).json(error);
+        res.status(500).json({
+            msg: "Error al eliminar un usuario",
+            details: error.message});
     }
 }
 
