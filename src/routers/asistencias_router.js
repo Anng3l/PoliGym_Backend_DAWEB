@@ -1,20 +1,22 @@
 import { Router } from "express";
 import { crearAsistencia, actualizarAsistencia, eliminarAsistencia, obtenerAsistencias, obtenerAsistenciasPorUsername } from "../controllers/asistencias_controller.js"; 
+import { authorizedRoles } from "../middlewares/roleAuthMiddleware.js";
+import { verifyToken } from "../middlewares/auth.js";
 
 const router = Router();
 
 // Ruta para crear una nueva asistencia
-router.post("/", crearAsistencia);
+router.post("/", verifyToken, authorizedRoles("entrenador", "cliente"), crearAsistencia);
 
 // Ruta para actualizar una asistencia existente
-router.put("/:id", actualizarAsistencia);
+router.put("/:id", verifyToken, authorizedRoles("entrenador"), actualizarAsistencia);
 
 // Ruta para eliminar una asistencia
-router.delete("/:id", eliminarAsistencia);
+router.delete("/:id", verifyToken, authorizedRoles("entrenador"), eliminarAsistencia);
 
 // Ruta para obtener asistencias de un usuario por username
-router.get("/buscar/:username", obtenerAsistenciasPorUsername);
+router.get("/buscar/:username", verifyToken, authorizedRoles("entrenador"), obtenerAsistenciasPorUsername);
 
-router.get("/",obtenerAsistencias)
+router.get("/", verifyToken, authorizedRoles("entrenador", "cliente"), obtenerAsistencias)
 
 export default router;
