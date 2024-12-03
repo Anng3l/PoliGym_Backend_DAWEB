@@ -4,7 +4,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest",
     "start": "node src/index.js",
     "db": "json-server --watch db.json --port=4000",
     "dev": "node --watch ./src/index.js"
@@ -23,5 +23,12 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.8.3",
     "uuid": "^11.0.3"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.26.0",
+    "@babel/preset-env": "^7.26.0",
+    "babel-jest": "^29.7.0",
+    "jest": "^29.7.0",
+    "supertest": "^7.0.0"
   }
 }
