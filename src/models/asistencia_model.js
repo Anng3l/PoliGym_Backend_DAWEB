@@ -2,26 +2,30 @@ import mongoose from "mongoose";
 
 const asistenciaSchema = new mongoose.Schema({
   userId: {
-    type: String,  // Usamos String si quieres un ID de usuario como string
-    required: true
+    type: String,
+    required: true,
+  },
+  username: {
+    type: String,
+    required: true,  // Asegúrate de que este campo sea requerido
   },
   date: {
     type: Date,
-    default: Date.now
+    required: true,
   },
   status: {
     type: String,
-    required: true
+    required: true,
   },
   checkInTime: {
-    type: Date
+    type: Date,
+    required: true,
   },
   checkOutTime: {
-    type: Date
-  }
+    type: Date,
+    required: true,
+  },
 });
 
-// Creamos el modelo de Asistencia
-const Asistencia = mongoose.model("Asistencia", asistenciaSchema);
-
+const Asistencia = mongoose.model('Asistencia', asistenciaSchema);
 export default Asistencia;

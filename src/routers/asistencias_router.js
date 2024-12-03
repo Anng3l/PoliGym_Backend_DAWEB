@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { crearAsistencia, actualizarAsistencia, eliminarAsistencia, obtenerAsistencias } from "../controllers/asistencias_controller.js"; 
+import { crearAsistencia, actualizarAsistencia, eliminarAsistencia, obtenerAsistencias, obtenerAsistenciasPorUsername } from "../controllers/asistencias_controller.js"; 
 
 const router = Router();
 
@@ -12,7 +12,9 @@ router.put("/:id", actualizarAsistencia);
 // Ruta para eliminar una asistencia
 router.delete("/:id", eliminarAsistencia);
 
-// Ruta para obetner asistencias
+// Ruta para obtener asistencias de un usuario por username
+router.get("/buscar/:username", obtenerAsistenciasPorUsername);
+
 router.get("/",obtenerAsistencias)
 
 export default router;
