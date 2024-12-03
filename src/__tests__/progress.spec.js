@@ -1,128 +1,202 @@
-import request from "supertest";
-import app from "../index.js"; // Archivo principal del servidor
-import Progress from "../models/progresos_model.js";
+import {
+  createOneProgressController,
+  getAllProgressesController,
+  getOneProgressController,
+  updateOneProgressController,
+  deleteOneProgressController,
+} from '../controllers/progress_controller.js';
+import Progress from '../models/progresos_model.js';
 
-// Mock del modelo Progress
-jest.mock("../models/progresos_model.js");
+jest.mock('../models/progresos_model.js'); // Mock del modelo
 
-describe("Pruebas de los Endpoints de Progresos", () => {
-  beforeEach(() => {
-    jest.clearAllMocks(); // Limpia los mocks antes de cada prueba
+describe('Controladores de Progress', () => {
+  afterEach(() => {
+    jest.clearAllMocks(); // Limpia los mocks después de cada prueba
   });
 
-  // Test 1: Crear un progreso
-  it("Debe crear un nuevo progreso", async () => {
-    Progress.prototype.save = jest.fn().mockResolvedValue({
-      _id: "mocked-id",
-      userId: "1",
-      routineId: "2",
-      date: "2024-11-01",
-      details: "Progreso detallado",
+  describe('createOneProgressController', () => {
+    it('debería crear un progreso correctamente', async () => {
+      const req = {
+        body: {
+          id: '1',
+          username: 'testuser',
+          routineId: 'routine123',
+          date: '2024-12-03',
+          details: 'Worked out for 1 hour',
+        },
+      };
+      const res = {
+        status: jest.fn().mockReturnThis(),
+        json: jest.fn(),
+      };
+
+      const mockSave = jest.fn().mockResolvedValue(req.body);
+      Progress.mockImplementation(() => ({
+        save: mockSave,
+      }));
+
+      await createOneProgressController(req, res);
+
+      expect(mockSave).toHaveBeenCalledTimes(1);
+      expect(res.status).toHaveBeenCalledWith(201);
+      expect(res.json).toHaveBeenCalledWith(req.body);
     });
 
-    const respuesta = await request(app)
-      .post("/progresos")
-      .send({
-        userId: "1",
-        routineId: "2",
-        date: "2024-11-01",
-        details: "Progreso detallado",
-      })
-      .expect(201);
+    it('debería manejar errores al crear un progreso', async () => {
+      const req = { body: {} };
+      const res = {
+        status: jest.fn().mockReturnThis(),
+        json: jest.fn(),
+      };
 
-    expect(respuesta.body.userId).toBe("1");
-    expect(respuesta.body.routineId).toBe("2");
-    expect(respuesta.body.details).toBe("Progreso detallado");
+      const errorMessage = 'Validation error';
+      Progress.mockImplementation(() => ({
+        save: jest.fn().mockRejectedValue(new Error(errorMessage)),
+      }));
+
+      await createOneProgressController(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.json).toHaveBeenCalledWith({ message: errorMessage });
+    });
   });
 
-  // Test 2: Obtener todos los progresos
-  it("Debe obtener todos los progresos", async () => {
-    Progress.find.mockResolvedValue([
-      {
-        _id: "mocked-id",
-        userId: "1",
-        routineId: "2",
-        date: "2024-11-01",
-        details: "Progreso detallado",
-      },
-    ]);
+  describe('getAllProgressesController', () => {
+    it('debería obtener todos los progresos', async () => {
+      const progressesMock = [
+        { id: '1', username: 'testuser', routineId: 'routine123', date: '2024-12-03', details: 'Worked out for 1 hour' },
+      ];
+      Progress.find.mockResolvedValue(progressesMock);
 
-    const respuesta = await request(app).get("/progresos").expect(200);
+      const req = {};
+      const res = {
+        status: jest.fn().mockReturnThis(),
+        json: jest.fn(),
+      };
 
-    expect(Array.isArray(respuesta.body)).toBe(true);
-    expect(respuesta.body.length).toBeGreaterThan(0);
-    expect(respuesta.body[0].details).toBe("Progreso detallado");
-  });
+      await getAllProgressesController(req, res);
 
-  // Test 3: Obtener un progreso por ID
-  it("Debe obtener un progreso por ID", async () => {
-    Progress.findById.mockResolvedValue({
-      _id: "mocked-id",
-      userId: "1",
-      routineId: "2",
-      date: "2024-11-01",
-      details: "Progreso detallado",
+      expect(Progress.find).toHaveBeenCalledTimes(1);
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith(progressesMock);
     });
 
-    const respuesta = await request(app).get("/progresos/mocked-id").expect(200);
+    it('debería manejar errores al obtener progresos', async () => {
+      const errorMessage = 'Database error';
+      Progress.find.mockRejectedValue(new Error(errorMessage));
 
-    expect(respuesta.body._id).toBe("mocked-id");
-    expect(respuesta.body.details).toBe("Progreso detallado");
+      const req = {};
+      const res = {
+        status: jest.fn().mockReturnThis(),
+        json: jest.fn(),
+      };
+
+      await getAllProgressesController(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.json).toHaveBeenCalledWith({ message: errorMessage });
+    });
   });
 
-  // Test 4: Actualizar un progreso
-  it("Debe actualizar un progreso", async () => {
-    Progress.findByIdAndUpdate.mockResolvedValue({
-      _id: "mocked-id",
-      userId: "1",
-      routineId: "2",
-      date: "2024-11-02",
-      details: "Progreso actualizado",
+  describe('getOneProgressController', () => {
+    it('debería obtener un progreso por username', async () => {
+      const req = { params: { username: 'testuser' } };
+      const res = {
+        status: jest.fn().mockReturnThis(),
+        json: jest.fn(),
+      };
+
+      const progressMock = [{ id: '1', username: 'testuser', routineId: 'routine123' }];
+      Progress.find.mockResolvedValue(progressMock);
+
+      await getOneProgressController(req, res);
+
+      expect(Progress.find).toHaveBeenCalledWith({ username: 'testuser' });
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith(progressMock);
     });
 
-    const respuesta = await request(app)
-      .put("/progresos/mocked-id")
-      .send({
-        userId: "1",
-        routineId: "2",
-        date: "2024-11-02",
-        details: "Progreso actualizado",
-      })
-      .expect(200);
+    it('debería manejar errores al buscar un progreso', async () => {
+      const req = { params: { username: 'unknownuser' } };
+      const res = {
+        status: jest.fn().mockReturnThis(),
+        json: jest.fn(),
+      };
 
-    expect(respuesta.body.details).toBe("Progreso actualizado");
+      Progress.find.mockResolvedValue([]);
+
+      await getOneProgressController(req, res);
+
+      expect(res.status)
+      expect(res.json({ message: 'Progress not found' }))
+    });
   });
 
-  // Test 5: Eliminar un progreso
-  it("Debe eliminar un progreso", async () => {
-    Progress.findByIdAndDelete.mockResolvedValue({
-      _id: "mocked-id",
-      userId: "1",
-      routineId: "2",
-      date: "2024-11-01",
-      details: "Progreso detallado",
+  describe('updateOneProgressController', () => {
+    it('debería actualizar un progreso correctamente', async () => {
+      const req = { params: { id: '1' }, body: { details: 'Updated details' } };
+      const res = {
+        status: jest.fn().mockReturnThis(),
+        json: jest.fn(),
+      };
+
+      const updateMock = { matchedCount: 1, modifiedCount: 1 };
+      Progress.updateOne.mockResolvedValue(updateMock);
+
+      await updateOneProgressController(req, res);
+
+      expect(Progress.updateOne).toHaveBeenCalledWith({ id: '1' }, { $set: req.body });
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith(updateMock);
     });
 
-    const respuesta = await request(app).delete("/progresos/mocked-id").expect(200);
+    it('debería devolver un error si el progreso no existe', async () => {
+      const req = { params: { id: '1' }, body: { details: 'Updated details' } };
+      const res = {
+        status: jest.fn().mockReturnThis(),
+        json: jest.fn(),
+      };
 
-    expect(respuesta.body.message).toBe("Progress deleted successfully");
-    expect(Progress.findByIdAndDelete).toHaveBeenCalledWith("mocked-id");
+      Progress.updateOne.mockResolvedValue(null);
+
+      await updateOneProgressController(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(404);
+      expect(res.json).toHaveBeenCalledWith({ message: 'Progress not found' });
+    });
   });
 
-  // Test 6: Manejo de error al crear un progreso
-  it("Debe manejar errores al crear un progreso", async () => {
-    Progress.prototype.save = jest.fn().mockRejectedValue(new Error("DB error"));
+  describe('deleteOneProgressController', () => {
+    it('debería eliminar un progreso correctamente', async () => {
+      const req = { params: { id: '1' } };
+      const res = {
+        status: jest.fn().mockReturnThis(),
+        json: jest.fn(),
+      };
 
-    const respuesta = await request(app)
-      .post("/progresos")
-      .send({
-        userId: "1",
-        routineId: "2",
-        date: "2024-11-01",
-        details: "Progreso detallado",
-      })
-      .expect(400);
+      const deleteMock = { id: '1' };
+      Progress.findOneAndDelete.mockResolvedValue(deleteMock);
 
-    expect(respuesta.body.message).toBe("DB error");
+      await deleteOneProgressController(req, res);
+
+      expect(Progress.findOneAndDelete).toHaveBeenCalledWith({ id: '1' });
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith({ message: 'Progress deleted successfully' });
+    });
+
+    it('debería manejar errores si el progreso no existe', async () => {
+      const req = { params: { id: '1' } };
+      const res = {
+        status: jest.fn().mockReturnThis(),
+        json: jest.fn(),
+      };
+
+      Progress.findOneAndDelete.mockResolvedValue(null);
+
+      await deleteOneProgressController(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(404);
+      expect(res.json).toHaveBeenCalledWith({ message: 'Progress not found' });
+    });
   });
 });

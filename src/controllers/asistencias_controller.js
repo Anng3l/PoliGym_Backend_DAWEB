@@ -1,35 +1,4 @@
 import Asistencia from "../models/asistencia_model.js";
-import User from "../models/users_model.js";  // Importa el modelo sin redefinirlo
-
-// // Función para crear una nueva asistencia asociada a un username
-// export const crearAsistencia = async (req, res) => {
-//   try {
-//     const { username, date, status, checkInTime, checkOutTime } = req.body;
-
-//     // Busca al usuario por su username
-//     const usuario = await User.findOne({ username });
-
-//     if (!usuario) {
-//       return res.status(404).json({ message: "Usuario no encontrado" });
-//     }
-
-//     // Crear una nueva instancia del modelo de Asistencia
-//     const nuevaAsistencia = new Asistencia({
-//       userId: usuario._id,  // Utiliza el _id del usuario encontrado
-//       date,
-//       status,
-//       checkInTime,
-//       checkOutTime
-//     });
-
-//     // Guardar la nueva asistencia
-//     const savedAsistencia = await nuevaAsistencia.save();
-//     res.status(201).json({ message: "Asistencia creada exitosamente", data: savedAsistencia });
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).json({ message: "Error al crear la asistencia", error });
-//   }
-// };
 
 
 // Funcion Cerar Asistencia

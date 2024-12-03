@@ -5,8 +5,8 @@ const createOneProgressController = async (req, res) => {
     try {
         const { id, username, routineId, date, details } = req.body;
         const progress = new Progress({ id, username, routineId, date, details });
-        await progress.save();
-        return res.status(201).json(progress);
+        const x = await progress.save();
+        return res.status(201).json(x);
     } catch (error) {
         return res.status(400).json({ message: error.message });
     }
@@ -26,7 +26,10 @@ const getOneProgressController = async (req, res) => {
 
     try {
         const progress = await Progress.find({username});
-        if (!progress) return res.status(404).json({ message: "Progress not found" });
+        if (!progress) 
+        {
+            return res.status(404).json({ message: "Progress not found" });
+        }
         return res.status(200).json(progress);
     } catch (error) {
         return res.status(500).json({ message: error.message });

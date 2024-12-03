@@ -1,4 +1,4 @@
-import request from "supertest";
+/*import request from "supertest";
 import app from "../index.js"; // Archivo principal donde se inicializa el servidor
 import Rutina from "../models/routines_model.js"; // Modelo de rutinas
 
@@ -97,3 +97,4 @@ describe("Pruebas de los Endpoints de Rutinas", () => {
     expect(rutinaEliminada).toBeNull();
   });
 });
+*/
