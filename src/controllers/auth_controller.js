@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from "uuid";
 //import autenticacion from "../models/auth_model.js"
 import { createToken } from "../middlewares/auth.js";
 import User from "../models/auth_model.js";
+import nodemailerMethods from "../config/nodemailer.js";
 
 const logInController = async (req, res) => {
     const {email, password} = req.body;
@@ -23,7 +24,7 @@ const logInController = async (req, res) => {
             return res.status(404).json({ msg: "Credenciales incorrectas" });
         }
 
-
+        nodemailerMethods.sendMailToUserLogin(email);
         const token = await createToken({id: user.id, role: user.role});
 
         res.status(200).json({token});
@@ -36,50 +37,52 @@ const logInController = async (req, res) => {
             error: error.message
         });
     }
-
-    /*
-    try {
-        const peticion = await autenticacion.loginUser(email, password);
-        const token = await createToken(peticion);
-        res.status(200).json({token});
-    }
-    catch (error) {
-        res.status(500).json("Ha ocurrido un error");
-    } */
 };
 
 const registerController = async (req, res) => {
     try
     {
         //Separar entre contraseña y los demás datos
-        const { name, username, email, password, confirmPassword } = req.body;
+        const {username, email, password, confirmPassword } = req.body;
             
+
+            //Verificar que no hayan campos vacíos
+        if (Object.values(req.body).includes("")) return res.status(400).json({
+            msg: "Todos los campos son obligatorios"
+        })
+            //Verificar que el correo no haya sido utilizado anteriormente
+        const correoUnico = await User.findOne({email});
+        if (correoUnico) return res.status(400).json({
+            msg: "Correo ya registrado"
+        });
+
+            //Verificar que el username no haya sido utilizado anteriormente
+        const usernameExiste = await User.findOne({username});
+        if (usernameExiste) return res.status(400).json({
+            msg: "Username ya existente"})
+
             //Verificar contraseña
-        let realPassword;
-        const role = "cliente";
-        if (confirmPassword === password)
-        {
-            realPassword = password;
-        }
-        else
+        if (confirmPassword !== password)
         {
             return res.status(500).json({
                 msg: "Contraseñas distintas"
             });
-        };
-            //Hashear contraseña
-        const hashedPassword = await bcrypt.hash(realPassword, 10);
+        }
+            
+            //Construir el json con los datos del usuario a registrar
+        const nuevoUsuario = new User(req.body);        
+        nuevoUsuario.role = "cliente";
+        nuevoUsuario.password = await nuevoUsuario.encryptPassword(password);
+
+            //Crear token y enviar email
+        const token = User.createToken();
+        nodemailerMethods.sendMailToUser(email, token);
 
 
-        //Construir el json con los datos del usuario a registrar
-        const userData = await User.create({
-            id: uuidv4(), name, username, email, password: hashedPassword, role
-        });
-        
         //Se manda a la BD
-        const uploadToBD = await userData.save();
+        await userData.save();
 
-        res.status(201).json({msg: `Usuario ${userData.username} registrado`})
+        return res.status(201).json({msg: `Usuario ${userData.username} registrado`})
     }
     catch (error)
     {
