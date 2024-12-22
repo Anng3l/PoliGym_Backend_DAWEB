@@ -5,15 +5,15 @@ import { verifyToken } from "../middlewares/auth.js";
 
 const router = Router();
 
-router.get("/routines", verifyToken, authorizedRoles("entrenador", "cliente"), getAllRoutines)
+router.get("/rutinas", verifyToken, authorizedRoles("entrenador", "cliente"), getAllRoutines)
 
-router.get("/routines/:id", verifyToken, authorizedRoles("entrenador", "cliente"), getRoutineById)
+router.get("/rutinas/:id", verifyToken, authorizedRoles("entrenador", "cliente"), getRoutineById)
 
-router.post("/routines", verifyToken, authorizedRoles("entrenador", "cliente"),createRoutine)
+router.post("/rutinas", verifyToken, authorizedRoles("entrenador", "cliente"),createRoutine)
 
-router.put("/routines/:id", verifyToken, authorizedRoles("entrenador", "cliente"),updateRoutine)
+router.put("/rutinas/:id", verifyToken, authorizedRoles("entrenador", "cliente"),updateRoutine)
 
-router.delete("/routines/:id", verifyToken, authorizedRoles("entrenador", "cliente"),deleteRoutine)
+router.delete("/rutinas/:id", verifyToken, authorizedRoles("entrenador", "cliente"),deleteRoutine)
 
 
 

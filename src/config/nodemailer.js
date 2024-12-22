@@ -19,7 +19,7 @@ const nodemailerMethods = {
             from: process.env.USER_MAILTRAP,
             to: userMail,
             subject: "Verificar cuenta",
-            html: `<p>Hola, haz clic <a href="${process.env.URL_BACKEND}confirmar/${encodeURIComponent(token)}">aquí</a> para confirmar tu cuenta.</p>`
+            html: `<p>Hola, haz clic <a href="${process.env.URL_BACKEND}auth/confirm/${encodeURIComponent(token)}">aquí</a> para confirmar tu cuenta.</p>`
         };
     
         transporter.sendMail(mailOptions, function(error, info){

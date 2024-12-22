@@ -11,13 +11,17 @@ import dotenv from "dotenv"
 import dbConnect from "./config/dbConnect.js";
 import cloudinary from "cloudinary"
 import fileUpload from "express-fileupload";
+import cookieParser from "cookie-parser";
+
 
 //Inicia la conexión a la bd en MongoDB
 dbConnect();
 //Carga e inyecta las variables de entorno al objeto global process.env (objeto que contiene las vvariables de entorno disponibles en esta app)
 dotenv.config();
 
+
 const app = express();
+
 
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -29,21 +33,22 @@ app.use(fileUpload({
     tempFileDir: "./uploads"
 }));
 
-const PORT = process.env.PORT || 7001;
 
+const PORT = process.env.PORT || 7001;
 app.set("port", PORT);
 
 app.use(express.json());
+    //Middleware para cookies
+app.use(cookieParser());
 
 app.get("/", (req, res) => {
     res.send("Server On");
 })
-
-app.use("/users", routerUsers);
-app.use("/rutinas", routerRutinas);
-app.use("/progresos", routerProgresos);
-app.use("/auth", routerAuth);
-app.use("/asistencias", routerAsistencias);
+app.use("/api", routerUsers);
+app.use("/api", routerRutinas);
+app.use("/api", routerProgresos);
+app.use("/api", routerAuth);
+app.use("/api", routerAsistencias);
 
 
 

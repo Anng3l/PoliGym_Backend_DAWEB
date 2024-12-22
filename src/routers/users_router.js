@@ -7,12 +7,12 @@ import { Router } from "express";
 const router = Router();
 
 //Rutas protegidas
-router.get("/", verifyToken, authorizedRoles("administrador"), getAllUsersController);
-router.get("/:username", verifyToken, authorizedRoles("administrador"), getOneUserController);
-router.get("/role/:role", verifyToken, authorizedRoles("administrador"), getUsersByRoleController);
-router.put("/:username", verifyToken, authorizedRoles("administrador"), updateUserController);
-router.delete("/:username", verifyToken, authorizedRoles("administrador"), deleteOneUserController);
-router.post("/", verifyToken, authorizedRoles("administrador"), createUserController);
+router.get("/users/", verifyToken, authorizedRoles("administrador"), getAllUsersController);
+router.get("/users/:username", verifyToken, authorizedRoles("administrador"), getOneUserController);
+router.get("/users/role/:role", verifyToken, authorizedRoles("administrador"), getUsersByRoleController);
+router.put("/users/:username", verifyToken, authorizedRoles("administrador"), updateUserController);
+router.delete("/users/:username", verifyToken, authorizedRoles("administrador"), deleteOneUserController);
+router.post("/users/", verifyToken, authorizedRoles("administrador"), createUserController);
 
 
 export default router;

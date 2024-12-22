@@ -2,7 +2,7 @@ import jwt from "jsonwebtoken";
 
 
 const createToken = async (userInfo) => {
-    return jwt.sign(userInfo, process.env.JWT_SECRET, {expiresIn: "1h"});
+    return jwt.sign(userInfo, process.env.JWT_SECRET, {expiresIn: "5m"});
 };
 
 const verifyToken = async (req, res, next) => {
@@ -24,7 +24,12 @@ const verifyToken = async (req, res, next) => {
     })
 }
 
+const refreshToken = async (userInfo) => {
+    return jwt.sign(userInfo, process.env.REFRESH_JWT_SECRET, {expiresIn: "24h"});
+};
+
 export {
     createToken,
-    verifyToken
+    verifyToken,
+    refreshToken
 }

@@ -1,11 +1,12 @@
 import { Router } from "express";
-import { logInController, registerController } from "../controllers/auth_controller.js";
+import { logInController, refreshTokenController, registerController, verificacionDeRegistroController } from "../controllers/auth_controller.js";
 
 
 const router = Router();
 
 //Rutas públicas
-router.post("/login", logInController);
-router.post("/register", registerController);
-
+router.post("/auth/login", logInController);
+router.post("/auth/register", registerController);
+router.get("/auth/confirm/:token", verificacionDeRegistroController);
+router.get("/auth/refresh", refreshTokenController);
 export default router;

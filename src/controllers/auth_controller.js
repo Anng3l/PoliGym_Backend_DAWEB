@@ -1,8 +1,10 @@
 import bcrypt from "bcrypt";
 import { v4 as uuidv4 } from "uuid";
 
+import jwt from "jsonwebtoken";
+
 //import autenticacion from "../models/auth_model.js"
-import { createToken } from "../middlewares/auth.js";
+import { createToken, refreshToken } from "../middlewares/auth.js";
 import User from "../models/auth_model.js";
 import nodemailerMethods from "../config/nodemailer.js";
 
@@ -26,6 +28,12 @@ const logInController = async (req, res) => {
 
         nodemailerMethods.sendMailToUserLogin(email);
         const token = await createToken({id: user.id, role: user.role});
+        const refreshJwt = await refreshToken({id: user.id, role: user.role});
+
+        user.refreshToken = refreshJwt;
+        await user.save();
+
+        res.cookie("jwt", refreshJwt, { httpOnly: true, maxAge: 86400000 });
 
         res.status(200).json({token});
     }
@@ -75,14 +83,16 @@ const registerController = async (req, res) => {
         nuevoUsuario.password = await nuevoUsuario.encryptPassword(password);
 
             //Crear token y enviar email
-        const token = User.createToken();
+        const token = nuevoUsuario.createToken();
         nodemailerMethods.sendMailToUser(email, token);
 
+        let idx = uuidv4();
+        nuevoUsuario.id = idx;
 
         //Se manda a la BD
-        await userData.save();
+        await nuevoUsuario.save();
 
-        return res.status(201).json({msg: `Usuario ${userData.username} registrado`})
+        return res.status(201).json({msg: `Usuario ${nuevoUsuario.username} registrado`})
     }
     catch (error)
     {
@@ -94,7 +104,60 @@ const registerController = async (req, res) => {
     };
 };
 
+const verificacionDeRegistroController = async (req, res) => {
+    try
+    {
+        const { token } = req.params;
+
+        const clienteToken = await User.findOne({token});
+
+        if (!token) return res.status(500).json({msg: "Token no enviado o inválido"});
+        if (!clienteToken.token) return res.status(500).json({msg: "La cuenta ya ha sido confirmada"});
+
+        clienteToken.token = null;
+        clienteToken.confirmEmail = true;
+        await clienteToken.save();
+        return res.status(200).json({msg: "Registro confirmado satisfactoriamente"});
+    }
+    catch (error)
+    {
+        return res.status(500).json({error});
+    }    
+};
+
+const refreshTokenController = async (req, res) => {
+    //No hace falta desestructurar las cookies pues cookie-parser las convierte a objeto
+    const cookies = req.cookies;
+
+    if (!cookies?.jwt) return res.status(401).json({msg: "Cookie o jwt no provisto en las cookies"});
+    const refreshedJwt = cookies.jwt;
+    const userBD = await User.findOne({refreshToken: refreshedJwt});
+    if (!userBD) return res.status(403).json({msg: "No existe usuario asociado con el jwt de refresco"});
+    
+    jwt.verify(
+        refreshedJwt,
+        process.env.REFRESH_JWT_SECRET,
+        (error, decoded) => {
+            if (error || userBD.id !== decoded.id) return res.status(401).json({msg: "Error en la verificación del JWT de refresco"});
+            const token = jwt.sign(
+                { id: decoded.id, role: decoded.role },
+                process.env.REFRESH_JWT_SECRET,
+                {expiresIn: "24h"}
+            )
+            //res.cookie("jwt", token, {httpOnly: true, maxAge: 86400000});
+            return res.status(200).json({token});
+        }
+    )
+}
+
+const logOutController = async (req, res) => {
+    //En el frontend también se debe eliminar el jwt
+    
+};
+
 export {
     logInController,
-    registerController
+    registerController,
+    verificacionDeRegistroController,
+    refreshTokenController
 }

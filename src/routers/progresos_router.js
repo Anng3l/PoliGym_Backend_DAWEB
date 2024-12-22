@@ -6,14 +6,14 @@ import { verifyToken } from "../middlewares/auth.js";
 
 const router = Router();
 
-router.post("/", verifyToken, authorizedRoles("cliente"), createOneProgressController);
+router.post("/progreso/", verifyToken, authorizedRoles("cliente"), createOneProgressController);
   
-router.get("/", verifyToken, authorizedRoles("cliente"), getAllProgressesController);
+router.get("/progreso/", verifyToken, authorizedRoles("cliente"), getAllProgressesController);
   
-router.get("/:username", verifyToken, authorizedRoles("entrenador"), getOneProgressController);
+router.get("/progreso/:username", verifyToken, authorizedRoles("entrenador"), getOneProgressController);
   
-router.put("/:id", verifyToken, authorizedRoles("cliente"), updateOneProgressController);
+router.put("/progreso/:id", verifyToken, authorizedRoles("cliente"), updateOneProgressController);
   
-router.delete("/:id", verifyToken, authorizedRoles("cliente"), deleteOneProgressController);
+router.delete("/progreso/:id", verifyToken, authorizedRoles("cliente"), deleteOneProgressController);
 
 export default router;

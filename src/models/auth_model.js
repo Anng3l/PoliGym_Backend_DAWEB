@@ -38,7 +38,13 @@ const userSchema = new mongoose.Schema({
     token: {
         type: String,
         required: false
-    }
+    },
+    confirmEmail: {
+        type: Boolean,
+        require: false,
+        default: false
+    },
+    refreshToken: String
 },
 {
     timestamps: true
