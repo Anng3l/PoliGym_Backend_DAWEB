@@ -2,7 +2,9 @@ import { v4 as uuidv4 } from "uuid";
 import bcrypt from "bcrypt";
 import {v2 as cloudinary} from "cloudinary"
 
-import User from "../models/auth_model.js";
+import User from "../models/users_model.js";
+import nodemailerMethods from "../config/nodemailer.js";
+import { check, validationResult } from "express-validator";
 
 const getAllUsersController = async (req, res) => {
     try
@@ -11,20 +13,19 @@ const getAllUsersController = async (req, res) => {
 
         if (data)
         {
-            res.status(200).json(data);
+            return res.status(200).json(data);
         }
         else
         {
-            res.status(200).json({
-                msg: "No hay usuarios registrados"
-            });
+            return res.status(200).json({msg: "No hay usuarios registrados"});
         }
-        
     }
     catch (error)
     {
-        res.status(500).json({
-            msg: error.msg
+        return res.status(500).json({
+            succes: false,
+            msg: "Error al listar todos los usuarios",
+            error: error.message
         });
     }
     
@@ -36,11 +37,16 @@ const getOneUserController = async (req, res) => {
     try
     {
         const data = await User.findOne({username});
-        res.status(200).json(data);
+        if (!data) return res.status(203).json({msg: "No existe usuario con ese nombre de usuario"})
+        return res.status(200).json(data);
     }
     catch (error)
     {
-        res.status(500).json(error);
+        return res.status(500).json({
+            succes: false,
+            msg: "Error al listar un usuario",
+            error: error.message
+        });
     }
 };
 
@@ -51,26 +57,37 @@ const getUsersByRoleController = async (req, res) => {
 
     try
     {
+        if (!["administrador", "entrenador", "cliente"].includes(role)) return res.status(203).json({msg: "El rol ingresado es incorrecto"});
         const data = await User.find({role});
-        res.status(200).json(data);
+        return res.status(200).json(data);
     }
     catch (error)
     {
-        res.status(500).json(error);
+        return res.status(500).json({
+            succes: false,
+            msg: "Error al listar un usuario",
+            error: error.message
+        });
     }
 };
 
-
-
-
+//---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 const createUserController = async (req, res) => {
+    const { name, username, email, password, role } = req.body;
+
     try
     {
-        //Obtención de la data desde la petición
-        const { name, username, email, password, role } = req.body; //Params es para cuando los datos vienen en la ruta
-        //Hasheo de la contraseña
+            //Validaciones
+        if (Object.values(req.body).includes("")) return res.status(203).json({msg: "Faltan datos para crear usuario"});
+        let userBDControll = await User.findOne({username});
+        if (userBDControll) return res.status(203).json({msg: "Username ya registrado"});
+        userBDControll = await User.findOne({email});
+        if (userBDControll) return res.status(203).json({msg: "Email ya registrado"});
+        if (!["administrador", "entrenador", "cliente"].includes(role)) return res.status(203).json({msg: "El rol ingresado es incorrecto"});
+
+            //Hasheo de la contraseña
         const hashedPassword = await bcrypt.hash(password, 10);
-        //Construcción del objeto con los datos del usuario a crear
+            //Construcción del objeto con los datos del usuario a crear
         const newUserData = await User.create({
             id: uuidv4(),
             name,
@@ -80,12 +97,19 @@ const createUserController = async (req, res) => {
             role
         });
 
+        const token = newUserData.createToken();
+        nodemailerMethods.sendMailToUser(email, token);
+
         await newUserData.save();
         return res.status(200).json({msg: "Usuario registrado correctamente"})
     }
     catch (error)
     {
-        return res.status(500).json(error);
+        return res.status(500).json({
+            succes: false,
+            msg: "Error al intentar crear un usuario",
+            error: error.message
+        });
     }
 };
 
@@ -93,45 +117,78 @@ const createUserController = async (req, res) => {
 
 const updateUserController = async (req, res) => {
     //Obtención de los datos a pasar a la llamada al modelo
-    const { username} = req.params;
+    const { username } = req.params;
     const datos = req.body;
 
-    if (req.files.imagen)
-    {
-        try {
-            const cloudinaryResponse = await cloudinary.uploader.upload(req.files.imagen.tempFilePath, {folder: "Fotos_De_Perfil"});
+    delete datos.id;
+    delete datos.token;
+    delete datos.confirmEmail;
+    delete datos.refreshToken;
+    delete datos.recoverPassword;
 
-            datos.photo = cloudinaryResponse.secure_url;
-        }
-        catch (error)
-        {
-            return res.status(500).json({
-                msg: "Error al subir la foto",
-                details: error.message
-            })
-        }
-    }
-
-    if (datos.password)
-    {
-        try
-        {
-            const newPassword = await bcrypt.hash(datos.password, 10);
-            datos.password = newPassword;
-        }
-        catch (error)
-        {
-            return res.status(500).json({
-                msg:"Error al actualziar los datos - password",
-                details: error.message
-            })
-        }
+    await check("username")
+        .optional()
+        .isAlphanumeric()
+        .withMessage("Debe tener sólo letras y números")
+        .isLength({min: 5, max: 10})
+        .withMessage("El nombre de usuario debe tener entre 5 y 10 dígitos")
+        .run(req);
+    
+    await check("name")
+        .optional()
+        .isLength({min: 5, max: 15})
+        .withMessage("EL nombre debe tener entre 5 y 15 dígitos")
+        .matches(/^[A-Za-z]+$/)
+        .withMessage("El nombre debe contener sólo letras")
+        .run(req);
         
+    await check("email")
+        .optional()
+        .isEmail()
+        .withMessage("El email no tiene formato válido")
+        .normalizeEmail()
+        .run(req);
+
+    await check("password")
+        .optional()
+        .isLength({min: 8, max: 20})
+        .withMessage("La contraseña debe tener entre 8 y 20 dígitos de longitud")
+        .matches(/^(?=.*[A-Za-z])(?=.*\d)(?=.*[@_-])/)
+        .withMessage("La contraseña no cumple con el formato mínimo")
+        .run(req);
+
+    const errores = validationResult(req);
+
+    if (!errores.isEmpty())
+    {
+        return res.status(400).json({
+            msg: 'Errores de validación',
+            errores: errores.array()
+        });
     }
-    //Llamada al modelo con manejo de error
+
+
+    let newData = {...datos};
+
     try
     {
-        const data = await User.updateOne({username}, {$set:datos});
+        if (Object.values(req.body).includes("")) return res.status(203).json({msg: "Debe ingresar datos para actualizar los datos del usuario"})
+        const userBD = await User.findOne({username});
+        if (!userBD) return res.status(203).json({msg: "No existe usuario con ese username"});
+        if (req?.files?.imagen)
+        {
+            const cloudinaryResponse = await cloudinary.uploader.upload(req.files.imagen.tempFilePath, {folder: "Fotos_De_Perfil"});
+            newData.photo = cloudinaryResponse.secure_url;
+        }
+
+        if (datos.password)
+        {
+            const newPassword = await bcrypt.hash(datos.password, 10);
+            newData.password = newPassword;
+        }
+
+        //Llamada al modelo con manejo de error
+        const data = await User.updateOne({username}, {$set:newData});
 
         if (data.matchedCount===0)
         {
@@ -140,9 +197,13 @@ const updateUserController = async (req, res) => {
 
         res.status(200).json({msg:"Actualización realizada correctamente"});
     }
-    catch (error)
+    catch(error)
     {
-        res.status(500).json(error);
+        return res.status(500).json({
+            succes: false,
+            msg: "Error al intentar actualizar un usuario",
+            error: error.message
+        });
     }
 };
 
@@ -152,14 +213,18 @@ const deleteOneUserController = async (req, res) => {
 
     try
     {
-        const data = await User.findOneAndDelete({username});
-        res.status(200).json({msg: `Usuario ${username} eliminado correctamente`});
+        const userBD = await User.findOne({username});
+        if (!userBD) return res.status(203).json({msg: "No existe un usuario con ese username"});
+        await User.findOneAndDelete({username});
+        return res.status(200).json({msg: `Usuario ${username} eliminado correctamente`});
     }
     catch (error)
     {
-        res.status(500).json({
-            msg: "Error al eliminar un usuario",
-            details: error.message});
+        return res.status(500).json({
+            succes: false,
+            msg: "Error al intentar eliminar un usuario",
+            error: error.message
+        });
     }
 }
 

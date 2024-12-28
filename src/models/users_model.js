@@ -1,4 +1,5 @@
-import mongoose from "mongoose";
+import mongoose, { model, mongo } from "mongoose";
+import bcrypt from "bcrypt";
 
 const userSchema = new mongoose.Schema({
     id: {
@@ -18,7 +19,6 @@ const userSchema = new mongoose.Schema({
     photo: {
         type: String,
         required: false,
-        unique: false,
         default: ""
     },
     email: {
@@ -38,11 +38,40 @@ const userSchema = new mongoose.Schema({
     token: {
         type: String,
         required: false
+    },
+    confirmEmail: {
+        type: Boolean,
+        require: false,
+        default: false
+    },
+    refreshToken: [String],
+    recoverPassword: {
+        type: Boolean,
+        required: false,
+        default: false
     }
 },
 {
     timestamps: true
 });
 
-const User = mongoose.models.User || mongoose.model('User', userSchema);
-export default User;
+userSchema.methods.encryptPassword = async function(password) 
+{
+    const salt = await bcrypt.genSalt(10);
+    const passwordEncrypt = await bcrypt.hash(password, salt);
+    return passwordEncrypt;
+};
+
+userSchema.methods.matchPassword = async function(password)
+{
+    const response = await bcrypt.compare(password, this.password);
+    return response;
+};
+
+userSchema.methods.createToken = function() 
+{
+    const tokenGenerado = this.token = Math.random().toString(36).slice(2);
+    return tokenGenerado;
+}
+
+export default model("User", userSchema);
