@@ -71,9 +71,45 @@ const getUsersByRoleController = async (req, res) => {
     }
 };
 
-//---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 const createUserController = async (req, res) => {
     const { name, username, email, password, role } = req.body;
+
+    await check("username")
+        .isAlphanumeric()
+        .withMessage("Debe tener sólo letras y números")
+        .isLength({min: 5, max: 10})
+        .withMessage("El nombre de usuario debe tener entre 5 y 10 dígitos")
+        .run(req);
+    
+    await check("name")
+        .isLength({min: 5, max: 15})
+        .withMessage("EL nombre debe tener entre 5 y 15 dígitos")
+        .matches(/^[A-Za-z]+$/)
+        .withMessage("El nombre debe contener sólo letras")
+        .run(req);
+        
+    await check("email")
+        .isEmail()
+        .withMessage("El email no tiene formato válido")
+        .normalizeEmail()
+        .run(req);
+
+    await check("password")
+        .isLength({min: 8, max: 20})
+        .withMessage("La contraseña debe tener entre 8 y 20 dígitos de longitud")
+        .matches(/^(?=.*[A-Za-z])(?=.*\d)(?=.*[@_-])/)
+        .withMessage("La contraseña no cumple con el formato mínimo")
+        .run(req);
+
+    const errores = validationResult(req);
+
+    if (!errores.isEmpty()) {
+        return res.status(400).json({
+            msg: 'Errores de validación',
+            errores: errores.array()
+        });
+    }
 
     try
     {
@@ -128,7 +164,7 @@ const updateUserController = async (req, res) => {
 
     await check("username")
         .optional()
-        .isAlphanumeric()
+        .isString()
         .withMessage("Debe tener sólo letras y números")
         .isLength({min: 5, max: 10})
         .withMessage("El nombre de usuario debe tener entre 5 y 10 dígitos")
@@ -166,7 +202,6 @@ const updateUserController = async (req, res) => {
             errores: errores.array()
         });
     }
-
 
     let newData = {...datos};
 
