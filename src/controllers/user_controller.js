@@ -1,10 +1,10 @@
 import { v4 as uuidv4 } from "uuid";
 import bcrypt from "bcrypt";
 import {v2 as cloudinary} from "cloudinary"
+import { check, validationResult } from "express-validator";
 
 import User from "../models/users_model.js";
 import nodemailerMethods from "../config/nodemailer.js";
-import { check, validationResult } from "express-validator";
 
 const getAllUsersController = async (req, res) => {
     try
@@ -28,7 +28,6 @@ const getAllUsersController = async (req, res) => {
             error: error.message
         });
     }
-    
 };
 
 const getOneUserController = async (req, res) => {
@@ -59,13 +58,14 @@ const getUsersByRoleController = async (req, res) => {
     {
         if (!["administrador", "entrenador", "cliente"].includes(role)) return res.status(203).json({msg: "El rol ingresado es incorrecto"});
         const data = await User.find({role});
+        if (!data) return res.status(203).json({msg: `No se encontraron usuarios con el rol ${role}`});
         return res.status(200).json(data);
     }
     catch (error)
     {
         return res.status(500).json({
             succes: false,
-            msg: "Error al listar un usuario",
+            msg: "Error al listar usuarios por rol",
             error: error.message
         });
     }
@@ -96,7 +96,8 @@ const createUserController = async (req, res) => {
         .run(req);
 
     await check("password")
-        .isLength({min: 8, max: 20})
+        .isStrongPassword({ minLength: 8 })
+        .isLength({max: 20})
         .withMessage("La contraseña debe tener entre 8 y 20 dígitos de longitud")
         .matches(/^(?=.*[A-Za-z])(?=.*\d)(?=.*[@_-])/)
         .withMessage("La contraseña no cumple con el formato mínimo")
@@ -125,7 +126,6 @@ const createUserController = async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, 10);
             //Construcción del objeto con los datos del usuario a crear
         const newUserData = await User.create({
-            id: uuidv4(),
             name,
             username,
             email,
@@ -156,7 +156,6 @@ const updateUserController = async (req, res) => {
     const { username } = req.params;
     const datos = req.body;
 
-    delete datos.id;
     delete datos.token;
     delete datos.confirmEmail;
     delete datos.refreshToken;
@@ -174,7 +173,7 @@ const updateUserController = async (req, res) => {
         .optional()
         .isLength({min: 5, max: 15})
         .withMessage("EL nombre debe tener entre 5 y 15 dígitos")
-        .matches(/^[A-Za-z]+$/)
+        .matches(/^[A-Za-z ]+$/)
         .withMessage("El nombre debe contener sólo letras")
         .run(req);
         
@@ -187,7 +186,8 @@ const updateUserController = async (req, res) => {
 
     await check("password")
         .optional()
-        .isLength({min: 8, max: 20})
+        .isStrongPassword({ minLength: 8 })
+        .isLength({ max: 20 })
         .withMessage("La contraseña debe tener entre 8 y 20 dígitos de longitud")
         .matches(/^(?=.*[A-Za-z])(?=.*\d)(?=.*[@_-])/)
         .withMessage("La contraseña no cumple con el formato mínimo")
@@ -225,12 +225,9 @@ const updateUserController = async (req, res) => {
         //Llamada al modelo con manejo de error
         const data = await User.updateOne({username}, {$set:newData});
 
-        if (data.matchedCount===0)
-        {
-            return res.status(404).json({msg: "Usuario no encontrado"});
-        }
+        if (data.matchedCount===0) return res.status(404).json({msg: "Usuario no encontrado"});
 
-        res.status(200).json({msg:"Actualización realizada correctamente"});
+        return res.status(200).json({msg:"Actualización realizada correctamente"});
     }
     catch(error)
     {
@@ -248,9 +245,10 @@ const deleteOneUserController = async (req, res) => {
 
     try
     {
-        const userBD = await User.findOne({username});
+        const userBD = await User.findOne({ username });
         if (!userBD) return res.status(203).json({msg: "No existe un usuario con ese username"});
-        await User.findOneAndDelete({username});
+        const deletedUser = await User.findOneAndDelete({username});
+        if (!deletedUser) return res.status(203).json({msg: "No se pudo eliminar el usuario"});
         return res.status(200).json({msg: `Usuario ${username} eliminado correctamente`});
     }
     catch (error)

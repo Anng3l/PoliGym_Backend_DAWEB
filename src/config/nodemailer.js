@@ -49,6 +49,7 @@ const nodemailerMethods = {
             }
         });
     },
+    
     sendMailToUserRecovery: async (userMail, token) => {
         let mailOptions = {
             from: process.env.USER_MAILTRAP,

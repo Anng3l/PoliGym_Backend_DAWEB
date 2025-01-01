@@ -1,27 +1,19 @@
 import { Router } from "express";
 import { createRoutine, getRoutinesByUsername, updateRoutine, deleteRoutine } from "../controllers/routines_controller.js";
+
 import { authorizedRoles } from "../middlewares/roleAuthMiddleware.js";
 import { verifyToken } from "../middlewares/auth.js";
+import { accountVerificationMiddleware } from "../middlewares/accountVerification.js";
 
 const router = Router();
 
-router.get("/rutinas/:username", getRoutinesByUsername)
+router.get("/rutinas/:username", verifyToken, accountVerificationMiddleware, authorizedRoles("entrenador", "cliente"), getRoutinesByUsername)
 
-router.post("/rutinas", createRoutine)
+router.post("/rutinas", verifyToken, accountVerificationMiddleware, authorizedRoles("entrenador", "cliente"),createRoutine)
 
-router.put("/rutinas/:_id", updateRoutine)
+router.put("/rutinas/:id", verifyToken, accountVerificationMiddleware, authorizedRoles("entrenador", "cliente"),updateRoutine)
 
-router.delete("/rutinas/:_id", deleteRoutine)
-
-
-
-//router.get("/rutinas/:username", verifyToken, authorizedRoles("entrenador", "cliente"), getRoutinesByUsername)
-
-//router.post("/rutinas", verifyToken, authorizedRoles("entrenador", "cliente"),createRoutine)
-
-//router.put("/rutinas/:id", verifyToken, authorizedRoles("entrenador", "cliente"),updateRoutine)
-
-//router.delete("/rutinas/:id", verifyToken, authorizedRoles("entrenador", "cliente"),deleteRoutine)
+router.delete("/rutinas/:id", verifyToken, accountVerificationMiddleware, authorizedRoles("entrenador", "cliente"),deleteRoutine)
 
 
 export default router;

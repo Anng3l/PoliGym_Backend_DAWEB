@@ -6,7 +6,7 @@ import { check, validationResult } from "express-validator";
 
 // Crear una rutina
 const createRoutine = async (req, res) => {
-  const { name, description, exercises } = req.body;
+  const { name, description } = req.body;
 
   try {
     if (Object.values(req.body).includes("")) return res.status(203).json({msg: "Debe enviar todos los datos"});
@@ -55,6 +55,7 @@ const getRoutinesByUsername = async (req, res) => {
   try {
     const { username } = req.params;
     const userBd = await User.findOne({ username });
+    if (!userBd) return res.status(203).json({msg: "No existe usuario con ese username"});
     const rutinas = await Routine.find({ idUserRutina: userBd._id});
 
     if (!rutinas) {
@@ -85,7 +86,7 @@ const updateRoutine = async (req, res) => {
   delete datos.__v;
 
   try {
-    if (!mongoose.isValidObjectId(_id)) return res.status(203).json({ msg: "El id del usuario no es válido" });  
+    if (!mongoose.isValidObjectId(_id)) return res.status(203).json({ msg: "El id de la rutina no es válido" });  
     const idObject = new mongoose.Types.ObjectId(_id);
 
     const rutina = await Routine.findOne({_id: idObject});
@@ -105,8 +106,8 @@ const updateRoutine = async (req, res) => {
     await check("description")
           .optional()
           .isString()
-          .isLength({max:400})
-          .withMessage("La descripción debe tener contenido")
+          .isLength({min: 1, max:400})
+          .withMessage("La descripción debe tener contenido. Máximo 400 dígitos.")
           .run(req);
 
     let errores = validationResult(req);
@@ -120,33 +121,31 @@ const updateRoutine = async (req, res) => {
 
     if (datos.exercises)
     {
-      for (let ejercicio of datos.exercises) {
-        await check("name")
+      for (const [index, ejercicio] of datos.exercises.entries()) {
+        await check(`exercises[${index}].name`)
               .isString()
               .isLength({min: 2, max: 40})
-              .withMessage("El nombre del ejercicio debe tener entre 2 y 20 dígitos")
+              .withMessage("El nombre del ejercicio debe tener entre 2 y 40 dígitos")
               .matches(/^[A-Za-z0-9 ]+$/)
               .withMessage("El nombre sólo puede contener letras y números")
-              .run(ejercicio)
+              .run(req)
         
-        await check("series")
+        await check(`exercises[${index}].series`)
               .isInt({min: 1})
               .withMessage("Las series deben ser número enteros positivos")
-              .run(ejercicio)
+              .run(req)
 
-        await check("repetitions")
-              .isFloat({min: 1})
+        await check(`exercises[${index}].repetitions`)
+              .isFloat({min: 1, max: 3600})
               .withMessage("Las repeticiones deben ser números positivos")
-              .run(ejercicio)
-        
-        errores = validationResult(req);
-
-        if (!errores.isEmpty()) {
-          return res.status(400).json({
-            msg: "Errores en la validación de campos de ejercicios",
-            errores: errores.array()
-          });
-        };
+              .run(req)
+      };
+      const erroresEjercicios = validationResult(req);
+      if (!erroresEjercicios.isEmpty()) {
+        return res.status(400).json({
+          msg: "Errores en la validación de campos de ejercicios",
+          errores: erroresEjercicios.array()
+        });
       };
     };
 

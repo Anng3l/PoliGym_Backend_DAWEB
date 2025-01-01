@@ -29,7 +29,7 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true,
         enum: ["administrador", "entrenador", "cliente"]
-    },
+    },  //------------------ Admin no puede editarlos
     token: {
         type: String,
         required: false

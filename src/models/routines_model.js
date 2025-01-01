@@ -2,18 +2,18 @@ import mongoose, { mongo } from "mongoose";
 
 // Esquema de Ejercicios
 const exerciseSchema = new mongoose.Schema({
-  name: { type: String, require: true, unique: true },
-  series: { type: Number, require: true },
-  repetitions: { type: Number, require: true },
+  name: { type: String, require: false },
+  series: { type: Number, require: false },
+  repetitions: { type: Number, require: false }
 });
 
 // Esquema de Rutinas
 const routineSchema = new mongoose.Schema(
   {
     idUserRutina: { type: mongoose.Schema.Types.ObjectId, require: true, ref: "User" },
-    name: { type: String, required: true },
-    description: { type: String, required: true },
-    exercises: [exerciseSchema],
+    name: { type: String, require: true },
+    description: { type: String, require: true },
+    exercises: { type: [exerciseSchema], require: false, default: [] }
   },
   {
     timestamps: true, // Agrega automáticamente createdAt y updatedAt
