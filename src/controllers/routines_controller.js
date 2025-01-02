@@ -6,13 +6,17 @@ import { check, validationResult } from "express-validator";
 
 // Crear una rutina
 const createRoutine = async (req, res) => {
-  const { name, description } = req.body;
+  const { idUserRutina, name, description } = req.body;
 
   try {
     if (Object.values(req.body).includes("")) return res.status(203).json({msg: "Debe enviar todos los datos"});
     if (!name) return res.status(203).json({msg: "Debe ingresar el nombre del entrenamiento"});
     if (!description) return res.status(203).json({msg: "Debe ingresar una descripción para la rutina"});
-        
+    if (!idUserRutina) return res.status(203).json({msg: "Debe ingresar el id de un usuario"});
+    
+    if (!mongoose.isValidObjectId(idUserRutina)) return res.status(203).json({msg: "Debe ingresar un id de usuario correcto"});     
+    const objectId = new mongoose.Types.ObjectId(idUserRutina);
+
     await check("name")
           .isString()
           .isLength({ min: 5, max: 40 })
@@ -37,7 +41,7 @@ const createRoutine = async (req, res) => {
     };
     
     const newRoutine = new Routine({ ...req.body });
-
+    newRoutine.idUserRutina = objectId;
     await newRoutine.save();
     return res.status(201).json({msg: "Rutina creada satisfactoriamente"});
   } 
@@ -123,6 +127,7 @@ const updateRoutine = async (req, res) => {
     {
       for (const [index, ejercicio] of datos.exercises.entries()) {
         await check(`exercises[${index}].name`)
+              .optional()
               .isString()
               .isLength({min: 2, max: 40})
               .withMessage("El nombre del ejercicio debe tener entre 2 y 40 dígitos")
@@ -131,11 +136,13 @@ const updateRoutine = async (req, res) => {
               .run(req)
         
         await check(`exercises[${index}].series`)
+              .optional()
               .isInt({min: 1})
               .withMessage("Las series deben ser número enteros positivos")
               .run(req)
 
         await check(`exercises[${index}].repetitions`)
+              .optional()
               .isFloat({min: 1, max: 3600})
               .withMessage("Las repeticiones deben ser números positivos")
               .run(req)

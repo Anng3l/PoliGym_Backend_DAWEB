@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createOneProgressController, deleteOneProgressController, getAllProgressesController, getOneProgressController, updateOneProgressController } from "../controllers/progress_controller.js";
+import { createOneProgressController, deleteOneProgressController, listarProgresosUsuarioController, updateOneProgressController } from "../controllers/progress_controller.js";
 
 import { authorizedRoles } from "../middlewares/roleAuthMiddleware.js";
 import { verifyToken } from "../middlewares/auth.js";
@@ -7,14 +7,22 @@ import { accountVerificationMiddleware } from "../middlewares/accountVerificatio
 
 const router = Router();
 
-router.post("/progreso/", accountVerificationMiddleware, verifyToken, authorizedRoles("cliente"), createOneProgressController);
+router.post("/progresos", createOneProgressController);
   
-router.get("/progreso/", accountVerificationMiddleware, verifyToken, authorizedRoles("cliente"), getAllProgressesController);
+router.get("/progresos/:username", listarProgresosUsuarioController);
   
-router.get("/progreso/:username", accountVerificationMiddleware, verifyToken, authorizedRoles("entrenador"), getOneProgressController);
+router.put("/progresos/:_id", updateOneProgressController);
   
-router.put("/progreso/:id", accountVerificationMiddleware, verifyToken, authorizedRoles("cliente"), updateOneProgressController);
-  
-router.delete("/progreso/:id", accountVerificationMiddleware, verifyToken, authorizedRoles("cliente"), deleteOneProgressController);
+router.delete("/progresos/:_id", deleteOneProgressController);
 
+
+/*
+router.post("/progresos", accountVerificationMiddleware, verifyToken, authorizedRoles("cliente"), createOneProgressController);
+  
+router.get("/progresos/:username", accountVerificationMiddleware, verifyToken, authorizedRoles("entrenador", "cliente"), listarProgresosUsuarioController);
+  
+router.put("/progresos/:id", accountVerificationMiddleware, verifyToken, authorizedRoles("cliente"), updateOneProgressController);
+  
+router.delete("/progresos/:id", accountVerificationMiddleware, verifyToken, authorizedRoles("cliente"), deleteOneProgressController);
+*/
 export default router;

@@ -1,4 +1,3 @@
-import { v4 as uuidv4 } from "uuid";
 import bcrypt from "bcrypt";
 import {v2 as cloudinary} from "cloudinary"
 import { check, validationResult } from "express-validator";
@@ -73,7 +72,7 @@ const getUsersByRoleController = async (req, res) => {
 
 
 const createUserController = async (req, res) => {
-    const { name, username, email, password, role } = req.body;
+    const { name, username, lastname, email, password, role } = req.body;
 
     await check("username")
         .isAlphanumeric()
@@ -84,9 +83,16 @@ const createUserController = async (req, res) => {
     
     await check("name")
         .isLength({min: 5, max: 15})
-        .withMessage("EL nombre debe tener entre 5 y 15 dígitos")
+        .withMessage("El nombre debe tener entre 5 y 15 dígitos")
         .matches(/^[A-Za-z]+$/)
         .withMessage("El nombre debe contener sólo letras")
+        .run(req);
+
+    await check("lastname")
+        .isLength({min: 5, max: 15})
+        .withMessage("El apellido debe tener entre 5 y 15 dígitos")
+        .matches(/^[A-Za-z]+$/)
+        .withMessage("El apellido debe contener sólo letras")
         .run(req);
         
     await check("email")
@@ -127,6 +133,7 @@ const createUserController = async (req, res) => {
             //Construcción del objeto con los datos del usuario a crear
         const newUserData = await User.create({
             name,
+            lastname,
             username,
             email,
             password: hashedPassword,
@@ -177,6 +184,14 @@ const updateUserController = async (req, res) => {
         .withMessage("El nombre debe contener sólo letras")
         .run(req);
         
+    await check("lastname")
+        .optional()
+        .isLength({min: 5, max: 15})
+        .withMessage("EL nombre debe tener entre 5 y 15 dígitos")
+        .matches(/^[A-Za-z ]+$/)
+        .withMessage("El nombre debe contener sólo letras")
+        .run(req);
+
     await check("email")
         .optional()
         .isEmail()

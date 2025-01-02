@@ -1,27 +1,18 @@
 import mongoose from "mongoose";
 
 const DetailSchema = new mongoose.Schema({
-    weight: Number,
-    muscle_mass: Number,
-    fat_mass: Number,
-    endurance: Number,
-    distance_running: Number,
-    time_running: Number,
-    grip_strength: Number,
-    jump_height: Number,
-    max_speed: Number,
+    name: { type: String },   //Quizá un enum
+    measure: { type: Number }
 });
 
 const ProgressSchema = new mongoose.Schema({
-    id :
-    {
-        type: String,
-        unique: true
-    },
-    username: String,
-    routineId: String,
-    date: Date,
-    details: DetailSchema,
+    idUser : { type: mongoose.Schema.Types.ObjectId, require: true, ref: "User" },
+    dateStart: { type: Date},
+    dateEnd: { type: Date },
+    details: { type: [DetailSchema], require: false, default: [] }
+},
+{
+    timestamps: true
 });
 
 const Progress = mongoose.model("Progress", ProgressSchema);
