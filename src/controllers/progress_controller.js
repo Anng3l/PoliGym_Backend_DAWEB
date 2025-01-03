@@ -14,11 +14,13 @@ const createOneProgressController = async (req, res) => {
 
         await check("dateStart")
             .isDate()
+            .trim()
             .withMessage("Debe ser una fecha")
             .run(req)
 
         await check("dateEnd")
             .isDate()
+            .trim()
             .withMessage("Debe ser una fecha")
             .run(req)
 
@@ -37,12 +39,14 @@ const createOneProgressController = async (req, res) => {
             {
                 await check(`details[${index}].name`)
                     .isString()
+                    .trim()
                     .isLength({min: 3, max: 15})
                     .withMessage("Los nombres de cada medición deben tener entre 3 y 15 dígitos")
                     .run(req)
                 
                 await check(`details[${index}].measure`)
                     .isFloat({min:0.1})
+                    .trim()
                     .withMessage("Las mediciones deben ser números")
                     .run(req)
             }
@@ -103,12 +107,14 @@ const updateOneProgressController = async (req, res) => {
         
         await check("dateStart")
             .optional()
+            .trim()
             .isDate()
             .withMessage("Debe ser una fecha")
             .run(req)
 
         await check("dateEnd")
             .optional()
+            .trim()
             .isDate()
             .withMessage("Debe ser una fecha")
             .run(req)
@@ -127,6 +133,7 @@ const updateOneProgressController = async (req, res) => {
             {
                 await check(`details[${index}].name`)
                     .optional()
+                    .trim()
                     .isString()
                     .withMessage("El nombre debe ser string")
                     .isLength({min: 3, max: 15})
@@ -135,6 +142,7 @@ const updateOneProgressController = async (req, res) => {
 
                 await check(`details[${index}].measure`)
                     .isFloat({gt:0})
+                    .trim()
                     .withMessage("La medición debe ser positivo")
                     .run(req)
             };

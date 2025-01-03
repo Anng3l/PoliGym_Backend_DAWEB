@@ -19,6 +19,7 @@ const createRoutine = async (req, res) => {
 
     await check("name")
           .isString()
+          .trim()
           .isLength({ min: 5, max: 40 })
           .withMessage("El nombre debe tener entre 5 y 20 dígitos")
           .matches(/^[A-Za-z0-9 ]+$/)
@@ -27,6 +28,7 @@ const createRoutine = async (req, res) => {
 
     await check("description")
           .isString()
+          .trim()
           .isLength({max:400})
           .withMessage("La descripción debe tener contenido. Máximo 400 dígitos.")
           .run(req);
@@ -100,6 +102,7 @@ const updateRoutine = async (req, res) => {
 
     await check("name")
           .optional()
+          .trim()
           .isString()
           .isLength({ min: 5, max: 40 })
           .withMessage("El nombre debe tener entre 5 y 40 dígitos")
@@ -109,6 +112,7 @@ const updateRoutine = async (req, res) => {
 
     await check("description")
           .optional()
+          .trim()
           .isString()
           .isLength({min: 1, max:400})
           .withMessage("La descripción debe tener contenido. Máximo 400 dígitos.")
@@ -128,6 +132,7 @@ const updateRoutine = async (req, res) => {
       for (const [index, ejercicio] of datos.exercises.entries()) {
         await check(`exercises[${index}].name`)
               .optional()
+              .trim()
               .isString()
               .isLength({min: 2, max: 40})
               .withMessage("El nombre del ejercicio debe tener entre 2 y 40 dígitos")
@@ -137,12 +142,14 @@ const updateRoutine = async (req, res) => {
         
         await check(`exercises[${index}].series`)
               .optional()
+              .trim()
               .isInt({min: 1})
               .withMessage("Las series deben ser número enteros positivos")
               .run(req)
 
         await check(`exercises[${index}].repetitions`)
               .optional()
+              .trim()
               .isFloat({min: 1, max: 3600})
               .withMessage("Las repeticiones deben ser números positivos")
               .run(req)

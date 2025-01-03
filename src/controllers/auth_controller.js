@@ -1,6 +1,5 @@
 import bcrypt from "bcrypt";
-import { v4 as uuidv4 } from "uuid";
-
+import { check, validationResult } from "express-validator";
 import jwt from "jsonwebtoken";
 
 //import autenticacion from "../models/auth_model.js"
@@ -12,6 +11,24 @@ import mongoose from "mongoose";
 const logInController = async (req, res) => {
     const cookies = req.cookies;
     const {email, password} = req.body;
+
+    password = password.trim();
+
+    await check("email")
+        .isEmail()
+        .trim()
+        .withMessage("El email no tiene formato válido")
+        .normalizeEmail()
+        .run(req);
+
+    const errores = validationResult(req);
+    
+    if (!errores.isEmpty()) {
+        return res.status(400).json({
+            msg: 'Errores de validación',
+            errores: errores.array()
+        });
+    };
 
     try
     {
@@ -67,7 +84,55 @@ const registerController = async (req, res) => {
     {
         //Separar entre contraseña y los demás datos
         const {username, email, password, confirmPassword } = req.body;
+
+        await check("username")
+            .isAlphanumeric()
+            .trim()
+            .withMessage("Debe tener sólo letras y números")
+            .isLength({min: 3, max: 10})
+            .withMessage("El nombre de usuario debe tener entre 3 y 10 dígitos")
+            .run(req);
+        
+        await check("name")
+            .isLength({min: 3, max: 15})
+            .trim()
+            .withMessage("El nombre debe tener entre 3 y 15 dígitos")
+            .matches(/^[A-Za-z]+$/)
+            .withMessage("El nombre debe contener sólo letras")
+            .run(req);
+    
+        await check("lastname")
+            .isLength({min: 2, max: 15})
+            .trim()
+            .withMessage("El apellido debe tener entre 2 y 15 dígitos")
+            .matches(/^[A-Za-z]+$/)
+            .withMessage("El apellido debe contener sólo letras")
+            .run(req);
             
+        await check("email")
+            .isEmail()
+            .trim()
+            .withMessage("El email no tiene formato válido")
+            .normalizeEmail()
+            .run(req);
+    
+        await check("password")
+            .isStrongPassword({ minLength: 8 })
+            .trim()
+            .isLength({max: 20})
+            .withMessage("La contraseña debe tener entre 8 y 20 dígitos de longitud")
+            .matches(/^(?=.*[A-Za-z])(?=.*\d)(?=.*[@_-])/)
+            .withMessage("La contraseña no cumple con el formato mínimo")
+            .run(req);
+
+        const errores = validationResult(req);
+        
+        if (!errores.isEmpty()) {
+            return res.status(400).json({
+                msg: 'Errores de validación',
+                errores: errores.array()
+            });
+        };
 
             //Verificar que no hayan campos vacíos
         if (Object.values(req.body).includes("")) return res.status(400).json({
@@ -146,7 +211,7 @@ const refreshTokenController = async (req, res) => {
         const cookies = req.cookies;
 
         if (!cookies?.jwt) return res.status(401).json({msg: "Cookie o jwt no provisto en las cookies"});
-        const refreshedJwt = cookies.jwt;
+        const refreshedJwt = cookies.jwt.trim();         //------------------------------------------------------------------------------------------------------------------------------------
         res.clearCookie("jwt", { httpOnly: true, secure: true});
         const userBD = await User.findOne({refreshToken: refreshedJwt});
         
@@ -215,11 +280,11 @@ const logOutController = async (req, res) => {
     try
     {
         if (!cookies?.jwt) return res.status(203).json({msg: "Cookie o jwt no enviado"});
-        const refreshJwt = cookies.jwt;
+        const refreshJwt = cookies.jwt.trim();
         const userBD = await User.findOne({refreshToken: refreshJwt});
 
         //Reutilización de jwt de refresco
-        if (!userBD) 
+        if (!userBD)
         {
             jwt.verify (
                 refreshJwt,
@@ -236,7 +301,7 @@ const logOutController = async (req, res) => {
                 }
             );
             return;
-        }
+        };
         
         //Para autenticación en múltiples dispositivos
         userBD.refreshToken = userBD.refreshToken.find(rt => rt !== refreshJwt);
@@ -257,6 +322,22 @@ const logOutController = async (req, res) => {
 const recoverPasswordMailingController = async (req, res) => {
     //Obtención de datos
     const { email } = req.body;
+
+    await check("email")
+        .isEmail()
+        .trim()
+        .withMessage("El email no tiene formato válido")
+        .normalizeEmail()
+        .run(req);
+
+    const errores = validationResult(req);
+    
+    if (!errores.isEmpty()) {
+        return res.status(400).json({
+            msg: 'Errores de validación',
+            errores: errores.array()
+        });
+    };
 
     try
     {
@@ -315,6 +396,33 @@ const confirmTokenController = async (req, res) => {
 const recoverPasswordController = async (req, res) => {
     const cookies = req.cookies;
     const {password, confirmPassword} = req.body;
+
+    await check("password")
+        .isStrongPassword({ minLength: 8 })
+        .trim()
+        .isLength({max: 20})
+        .withMessage("La contraseña debe tener entre 8 y 20 dígitos de longitud")
+        .matches(/^(?=.*[A-Za-z])(?=.*\d)(?=.*[@_-])/)
+        .withMessage("La contraseña no cumple con el formato mínimo")
+        .run(req);
+
+    await check("confirmPassword")
+        .isStrongPassword({ minLength: 8 })
+        .trim()
+        .isLength({max: 20})
+        .withMessage("La contraseña debe tener entre 8 y 20 dígitos de longitud")
+        .matches(/^(?=.*[A-Za-z])(?=.*\d)(?=.*[@_-])/)
+        .withMessage("La contraseña no cumple con el formato mínimo")
+        .run(req);
+
+    const errores = validationResult(req);
+
+    if (!errores.isEmpty()) {
+        return res.status(400).json({
+            msg: 'Errores de validación',
+            errores: errores.array()
+        });
+    }
 
     try
     {

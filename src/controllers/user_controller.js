@@ -76,33 +76,38 @@ const createUserController = async (req, res) => {
 
     await check("username")
         .isAlphanumeric()
+        .trim()
         .withMessage("Debe tener sólo letras y números")
-        .isLength({min: 5, max: 10})
-        .withMessage("El nombre de usuario debe tener entre 5 y 10 dígitos")
+        .isLength({min: 3, max: 10})
+        .withMessage("El nombre de usuario debe tener entre 3 y 10 dígitos")
         .run(req);
     
     await check("name")
-        .isLength({min: 5, max: 15})
-        .withMessage("El nombre debe tener entre 5 y 15 dígitos")
+        .isLength({min: 3, max: 15})
+        .trim()
+        .withMessage("El nombre debe tener entre 3 y 15 dígitos")
         .matches(/^[A-Za-z]+$/)
         .withMessage("El nombre debe contener sólo letras")
         .run(req);
 
     await check("lastname")
-        .isLength({min: 5, max: 15})
-        .withMessage("El apellido debe tener entre 5 y 15 dígitos")
+        .isLength({min: 2, max: 15})
+        .trim()
+        .withMessage("El apellido debe tener entre 2 y 15 dígitos")
         .matches(/^[A-Za-z]+$/)
         .withMessage("El apellido debe contener sólo letras")
         .run(req);
         
     await check("email")
         .isEmail()
+        .trim()
         .withMessage("El email no tiene formato válido")
         .normalizeEmail()
         .run(req);
 
     await check("password")
         .isStrongPassword({ minLength: 8 })
+        .trim()
         .isLength({max: 20})
         .withMessage("La contraseña debe tener entre 8 y 20 dígitos de longitud")
         .matches(/^(?=.*[A-Za-z])(?=.*\d)(?=.*[@_-])/)
@@ -170,15 +175,17 @@ const updateUserController = async (req, res) => {
 
     await check("username")
         .optional()
+        .trim()
         .isString()
         .withMessage("Debe tener sólo letras y números")
-        .isLength({min: 5, max: 10})
+        .isLength({min: 3, max: 10})
         .withMessage("El nombre de usuario debe tener entre 5 y 10 dígitos")
         .run(req);
     
     await check("name")
         .optional()
-        .isLength({min: 5, max: 15})
+        .trim()
+        .isLength({min: 3, max: 15})
         .withMessage("EL nombre debe tener entre 5 y 15 dígitos")
         .matches(/^[A-Za-z ]+$/)
         .withMessage("El nombre debe contener sólo letras")
@@ -186,7 +193,8 @@ const updateUserController = async (req, res) => {
         
     await check("lastname")
         .optional()
-        .isLength({min: 5, max: 15})
+        .trim()
+        .isLength({min: 2, max: 15})
         .withMessage("EL nombre debe tener entre 5 y 15 dígitos")
         .matches(/^[A-Za-z ]+$/)
         .withMessage("El nombre debe contener sólo letras")
@@ -194,6 +202,7 @@ const updateUserController = async (req, res) => {
 
     await check("email")
         .optional()
+        .trim()
         .isEmail()
         .withMessage("El email no tiene formato válido")
         .normalizeEmail()
@@ -201,6 +210,7 @@ const updateUserController = async (req, res) => {
 
     await check("password")
         .optional()
+        .trim()
         .isStrongPassword({ minLength: 8 })
         .isLength({ max: 20 })
         .withMessage("La contraseña debe tener entre 8 y 20 dígitos de longitud")
