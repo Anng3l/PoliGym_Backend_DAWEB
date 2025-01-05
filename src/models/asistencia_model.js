@@ -1,22 +1,18 @@
 import mongoose from "mongoose";
 
 const asistenciaSchema = new mongoose.Schema({
-  username: {
-    type: String,
+  idUser: {
+    type: mongoose.Schema.Types.ObjectId,
     required: true,  // Asegúrate de que este campo sea requerido
-  },
-  date: {
-    type: Date,
-    required: true,
+    ref: "User"
   },
   checkInTime: {
     type: Date,
     required: true,
   },
   checkOutTime: {
-    type: Date,
-    required: true,
-  },
+    type: Date
+  }
 });
 
 const Asistencia = mongoose.model('Asistencia', asistenciaSchema);

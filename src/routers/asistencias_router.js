@@ -1,22 +1,33 @@
 import { Router } from "express";
-import { crearAsistencia, actualizarAsistencia, eliminarAsistencia, obtenerAsistencias, obtenerAsistenciasPorUsername } from "../controllers/asistencias_controller.js"; 
+import { crearAsistenciaController, actualizarAsistenciaController, eliminarAsistenciaController, obtenerAsistenciasController, obtenerAsistenciasPorUserController } from "../controllers/asistencias_controller.js"; 
 import { authorizedRoles } from "../middlewares/roleAuthMiddleware.js";
 import { verifyToken } from "../middlewares/auth.js";
 
 const router = Router();
 
-// Ruta para crear una nueva asistencia
-router.post("/asistencias/", verifyToken, authorizedRoles("entrenador", "cliente"), crearAsistencia);
 
-// Ruta para actualizar una asistencia existente
-router.put("/asistencias/:id", verifyToken, authorizedRoles("entrenador"), actualizarAsistencia);
+router.post("/asistencias", crearAsistenciaController);
 
-// Ruta para eliminar una asistencia
-router.delete("/asistencias/:id", verifyToken, authorizedRoles("entrenador"), eliminarAsistencia);
+router.put("/asistencias/:id", actualizarAsistenciaController);
 
-// Ruta para obtener asistencias de un usuario por username
-router.get("/asistencias/buscar/:username", verifyToken, authorizedRoles("entrenador"), obtenerAsistenciasPorUsername);
+router.delete("/asistencias/:id", eliminarAsistenciaController);
 
-router.get("/asistencias/", verifyToken, authorizedRoles("entrenador", "cliente"), obtenerAsistencias)
+router.get("/asistencias/buscar/:username", obtenerAsistenciasPorUserController);
 
+router.get("/asistencias", obtenerAsistenciasController)
+
+
+
+/*
+
+router.post("/asistencias/", verifyToken, authorizedRoles("entrenador", "cliente"), crearAsistenciaController);
+
+router.put("/asistencias/:id", verifyToken, authorizedRoles("entrenador"), actualizarAsistenciaController);
+
+router.delete("/asistencias/:id", verifyToken, authorizedRoles("entrenador"), eliminarAsistenciaController);
+
+router.get("/asistencias/buscar/:username", verifyToken, authorizedRoles("entrenador"), obtenerAsistenciasPorUserController);
+
+router.get("/asistencias/", verifyToken, authorizedRoles("entrenador", "cliente"), obtenerAsistenciasController)
+*/
 export default router;
