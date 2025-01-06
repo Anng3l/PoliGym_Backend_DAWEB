@@ -12,8 +12,6 @@ const logInController = async (req, res) => {
     const cookies = req.cookies;
     const {email, password} = req.body;
 
-    password = password.trim();
-
     await check("email")
         .isEmail()
         .trim()
@@ -242,8 +240,10 @@ const refreshTokenController = async (req, res) => {
             async (error, decoded) => {
                 //JWT expirado o manipulado
                 let idObject = new mongoose.Types.ObjectId(`${decoded._id}`);
-                console.log("Id usuario: ", typeof(userBD._id), userBD._id, "Decoded: ", typeof(idObject), idObject);
-                if (error || userBD._id !== idObject) return res.status(401).json({msg: "Error en la verificación del JWT de refresco"});
+                
+                //console.log("Id usuario: ", typeof(userBD._id), userBD._id, "Decoded: ", typeof(idObject), idObject);
+                
+                if (error || !userBD._id.equals(idObject)) return res.status(401).json({msg: "Error en la verificación del JWT de refresco"});
                 //JWT aún es válido
                 const accessJwt = jwt.sign(
                     { _id: decoded._id, role: decoded.role },
@@ -349,9 +349,11 @@ const recoverPasswordMailingController = async (req, res) => {
         //Operaciones sobre la BD
         const token = userBD.createToken();
         userBD.token = token;
-        nodemailerMethods.sendMailToUserRecovery(email, token);
+        const userId = userBD._id.toString();
+        nodemailerMethods.sendMailToUserRecovery(email, token, userId);
 
         await userBD.save();
+
         return res.status(200).json({msg: "Revise su correo para restablecer su contraseña"});
     }
     catch (error)
@@ -366,20 +368,24 @@ const recoverPasswordMailingController = async (req, res) => {
 
 const confirmTokenController = async (req, res) => {
     //Obtención de datos
-    const { token } = req.params;
+    const { token, userId } = req.query;
 
     try 
     {
         //Verificaciones
         if (!token) return res.status(203).json({msg: "Token no proporcionado"});
-        const userBD = await User.findOne({token});
-        if (!userBD) return res.status(203).json({msg: "No existe usuario con ese token"});
+        if (!userId) return res.status(203).json({msg: "Id de usuario no proporcionada"});
+        if (!mongoose.isValidObjectId(userId)) return res.status(203).json({msg: "El id proporcionado es inválido"});
+        const idUser = new mongoose.Types.ObjectId(userId);
+        const userBD = await User.findOne({ _id: idUser });
+        if (!userBD) return res.status(203).json({msg: "No existe el usuario requerido"});
 
         //Manejo de la BD
         userBD.recoverPassword = true;
+        userBD.token = null;
         await userBD.save();
 
-        res.cookie("token", token, {httpOnly: true, secure: true, maxAge: 86400000});
+        res.cookie("userId", idUser, {httpOnly: true, secure: true, maxAge: 86400000});
     
         return res.status(200).json({msg: "Su identidad ha sido verificada. Ya puede restablecer su contraseña."});
     }
@@ -426,16 +432,19 @@ const recoverPasswordController = async (req, res) => {
 
     try
     {
-        if (!cookies?.token) return res.status(203).json({msg: "No ha enviado el token para verificar identidad"});
-        const userBD = await User.findOne({token: cookies.token});
+        if (Object.values(req.body).includes("")) return res.status(203).json({msg: "Envíe todos los datos solicitados"});
+        if (!cookies) return res.status(203).json({msg: "No se ha enviado la cookie requerida"});
+        const idObject = cookies.userId;
+        if (!mongoose.isValidObjectId(idObject)) return res.status(203).json({msg: "La id es inválida"});
+        const idUser = new mongoose.Types.ObjectId(idObject);
+        const userBD = await User.findOne({_id: idUser});
         if (!userBD)
         {
-            res.clearCookie("token", {httpOnly: true, secure: true});    
-            return res.status(203).json({msg: "Token inválida"});
+            res.clearCookie("userId", {httpOnly: true, secure: true});    
+            return res.status(203).json({msg: "No se encontró usuario"});
         } 
         if (!userBD.recoverPassword) return res.status(203).json({msg: "Error al recuperar la contraseña"})
 
-        if (Object.values(req.body).includes("")) return res.status(203).json({msg: "Envíe todos los datos solicitados"});
         if (password !== confirmPassword) return res.status(203).json({msg: "Las contraseñas no son las mismas"});
 
         userBD.password = await userBD.encryptPassword(password);
@@ -443,7 +452,7 @@ const recoverPasswordController = async (req, res) => {
         userBD.token = null;
         await userBD.save();
 
-        res.clearCookie("token", {httpOnly: true, secure: true});
+        res.clearCookie("userId", {httpOnly: true, secure: true});
         return res.status(200).json({msg: "Contraseña restablecida exitosamente"});
     }
     catch (error)

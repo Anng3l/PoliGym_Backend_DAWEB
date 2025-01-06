@@ -50,12 +50,12 @@ const nodemailerMethods = {
         });
     },
     
-    sendMailToUserRecovery: async (userMail, token) => {
+    sendMailToUserRecovery: async (userMail, token, userId) => {
         let mailOptions = {
             from: process.env.USER_MAILTRAP,
             to: userMail,
             subject: "Recuperación de clave",
-            html: `<p>Hola, haz clic <a href="${process.env.URL_BACKEND}auth/recovery-password/${encodeURIComponent(token)}">aquí</a> para confirmar tu identidad.</p>`
+            html: `<p>Hola, haz clic <a href="${process.env.URL_BACKEND}auth/recovery-password?token=${encodeURIComponent(token)}&userId=${encodeURIComponent(userId)}">aquí</a> para confirmar tu identidad.</p>`
         };
     
         transporter.sendMail(mailOptions, function(error, info){

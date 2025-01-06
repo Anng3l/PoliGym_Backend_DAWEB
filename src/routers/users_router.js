@@ -8,14 +8,11 @@ import { accountVerificationMiddleware } from "../middlewares/accountVerificatio
 
 const router = Router();
 
-//Rutas protegidas
-router.get("/users/", accountVerificationMiddleware, verifyToken, authorizedRoles("administrador"), getAllUsersController);
+router.post("/users", verifyToken, authorizedRoles("administrador"), createUserController);
+router.put("/users/:username", accountVerificationMiddleware, verifyToken, authorizedRoles("administrador"), updateUserController);
+router.get("/users", accountVerificationMiddleware, verifyToken, authorizedRoles("administrador"), getAllUsersController);
 router.get("/users/:username", accountVerificationMiddleware, verifyToken, authorizedRoles("administrador"), getOneUserController);
 router.get("/users/role/:role", accountVerificationMiddleware, verifyToken, authorizedRoles("administrador"), getUsersByRoleController);
-router.put("/users/:username", accountVerificationMiddleware, verifyToken, authorizedRoles("administrador"), updateUserController);
 router.delete("/users/:username", accountVerificationMiddleware, verifyToken, authorizedRoles("administrador"), deleteOneUserController);
-
-router.post("/users/", verifyToken, authorizedRoles("administrador"), createUserController); // --
-
 
 export default router;

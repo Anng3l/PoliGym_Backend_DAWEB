@@ -5,29 +5,10 @@ import { verifyToken } from "../middlewares/auth.js";
 
 const router = Router();
 
-
-router.post("/asistencias", crearAsistenciaController);
-
-router.put("/asistencias/:id", actualizarAsistenciaController);
-
-router.delete("/asistencias/:id", eliminarAsistenciaController);
-
-router.get("/asistencias/buscar/:username", obtenerAsistenciasPorUserController);
-
-router.get("/asistencias", obtenerAsistenciasController)
-
-
-
-/*
-
-router.post("/asistencias/", verifyToken, authorizedRoles("entrenador", "cliente"), crearAsistenciaController);
-
+router.post("/asistencias", verifyToken, authorizedRoles("entrenador", "cliente"), crearAsistenciaController);
 router.put("/asistencias/:id", verifyToken, authorizedRoles("entrenador"), actualizarAsistenciaController);
-
 router.delete("/asistencias/:id", verifyToken, authorizedRoles("entrenador"), eliminarAsistenciaController);
-
 router.get("/asistencias/buscar/:username", verifyToken, authorizedRoles("entrenador"), obtenerAsistenciasPorUserController);
+router.get("/asistencias", verifyToken, authorizedRoles("entrenador", "cliente"), obtenerAsistenciasController)
 
-router.get("/asistencias/", verifyToken, authorizedRoles("entrenador", "cliente"), obtenerAsistenciasController)
-*/
 export default router;

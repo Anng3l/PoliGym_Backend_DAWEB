@@ -4,7 +4,6 @@ import { confirmTokenController, logInController, logOutController, recoverPassw
 
 const router = Router();
 
-//Rutas públicas
 router.post("/auth/login", logInController);
 router.post("/auth/register", registerController);
 router.get("/auth/confirm/:token", verificacionDeRegistroController);
@@ -12,7 +11,7 @@ router.get("/auth/refresh", refreshTokenController);
 router.get("/auth/logout", logOutController);
 
 router.post("/auth/recovery-password-mailing", recoverPasswordMailingController);
-router.get("/auth/recovery-password/:token", confirmTokenController);
+router.get("/auth/recovery-password", confirmTokenController);
 router.post("/auth/recovery-password", recoverPasswordController);
 
 export default router;

@@ -45,6 +45,7 @@ const createRoutine = async (req, res) => {
     const newRoutine = new Routine({ ...req.body });
     newRoutine.idUserRutina = objectId;
     await newRoutine.save();
+    
     return res.status(201).json({msg: "Rutina creada satisfactoriamente"});
   } 
   catch (error) {
