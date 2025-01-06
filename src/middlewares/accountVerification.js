@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 import User from "../models/users_model.js";
 
 const accountVerificationMiddleware = async (req, res, next) => {
-    const userId = req.user._id;
+    const userId = req.cookies.userId;
     
     if (!userId) return res.status(203).json({msg: "Id no enviada"});
     if (!mongoose.isValidObjectId(userId)) return res.status(203).json({msg: "_id inválida"});

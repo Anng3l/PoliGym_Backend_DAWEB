@@ -113,7 +113,7 @@ const registerController = async (req, res) => {
             .withMessage("El email no tiene formato válido")
             .normalizeEmail()
             .run(req);
-    
+
         await check("password")
             .isStrongPassword({ minLength: 8 })
             .trim()

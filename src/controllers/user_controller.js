@@ -168,6 +168,7 @@ const updateUserController = async (req, res) => {
     const { username } = req.params;
     const datos = req.body;
 
+    delete datos._id;
     delete datos.token;
     delete datos.confirmEmail;
     delete datos.refreshToken;

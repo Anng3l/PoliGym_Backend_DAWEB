@@ -7,10 +7,9 @@ import { accountVerificationMiddleware } from "../middlewares/accountVerificatio
 
 const router = Router();
 
-router.post("/rutinas", verifyToken, accountVerificationMiddleware, authorizedRoles("entrenador", "cliente"),createRoutine)
-router.put("/rutinas/:id", verifyToken, accountVerificationMiddleware, authorizedRoles("entrenador", "cliente"),updateRoutine)
-router.get("/rutinas/:username", verifyToken, accountVerificationMiddleware, authorizedRoles("entrenador", "cliente"), getRoutinesByUsername)
-router.delete("/rutinas/:id", verifyToken, accountVerificationMiddleware, authorizedRoles("entrenador", "cliente"),deleteRoutine)
-
+router.post("/rutinas", verifyToken, accountVerificationMiddleware, authorizedRoles("cliente"),createRoutine)
+router.put("/rutinas/:_id", verifyToken, accountVerificationMiddleware, authorizedRoles("cliente"),updateRoutine)
+router.get("/rutinas/:username", verifyToken, accountVerificationMiddleware, authorizedRoles("cliente"), getRoutinesByUsername)
+router.delete("/rutinas/:_id", verifyToken, accountVerificationMiddleware, authorizedRoles("cliente"),deleteRoutine)
 
 export default router;
