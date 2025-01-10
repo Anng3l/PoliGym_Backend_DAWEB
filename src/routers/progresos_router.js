@@ -9,7 +9,7 @@ const router = Router();
 
 router.post("/progresos", accountVerificationMiddleware, verifyToken, authorizedRoles("cliente"), createOneProgressController);
 router.get("/progresos/:username", accountVerificationMiddleware, verifyToken, authorizedRoles("entrenador", "cliente"), listarProgresosUsuarioController);
-router.put("/progresos/:id", accountVerificationMiddleware, verifyToken, authorizedRoles("cliente"), updateOneProgressController);
-router.delete("/progresos/:id", accountVerificationMiddleware, verifyToken, authorizedRoles("cliente"), deleteOneProgressController);
+router.put("/progresos/:_id", accountVerificationMiddleware, verifyToken, authorizedRoles("cliente"), updateOneProgressController);
+router.delete("/progresos/:_id", accountVerificationMiddleware, verifyToken, authorizedRoles("cliente"), deleteOneProgressController);
 
 export default router;

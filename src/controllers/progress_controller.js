@@ -13,12 +13,16 @@ const createOneProgressController = async (req, res) => {
         const objectId = new mongoose.Types.ObjectId(idUser);
 
         await check("dateStart")
+            .exists()
+            .withMessage("Debe enviar la fecha de inicio")
             .isDate()
             .trim()
             .withMessage("Debe ser una fecha")
             .run(req)
 
         await check("dateEnd")
+            .exists()
+            .withMessage("Debe enviar la fecha fin")
             .isDate()
             .trim()
             .withMessage("Debe ser una fecha")
@@ -38,6 +42,7 @@ const createOneProgressController = async (req, res) => {
             for (const [index, datos] of req.body.details.entries())
             {
                 await check(`details[${index}].name`)
+                    .optional()
                     .isString()
                     .trim()
                     .isLength({min: 3, max: 15})
@@ -45,6 +50,7 @@ const createOneProgressController = async (req, res) => {
                     .run(req)
                 
                 await check(`details[${index}].measure`)
+                    .optional()
                     .isFloat({min:0.1})
                     .trim()
                     .withMessage("Las mediciones deben ser números")
@@ -141,6 +147,7 @@ const updateOneProgressController = async (req, res) => {
                     .run(req)
 
                 await check(`details[${index}].measure`)
+                    .optional()
                     .isFloat({gt:0})
                     .trim()
                     .withMessage("La medición debe ser positivo")

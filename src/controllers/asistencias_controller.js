@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import Asistencia from "../models/asistencia_model.js";
+import User from "../models/users_model.js"
 import { check, validationResult } from "express-validator";
 
 // Funcion Cerar Asistencia
@@ -62,10 +63,18 @@ export const crearAsistenciaController = async (req, res) => {
   }
 };
 
-// Obtener todas las asistencias
+// Obtener todas las asistencias ------------------------------------------------------------------------------------------------------------
 export const obtenerAsistenciasController = async (req, res) => {
   try {
-    const asistencias = await Asistencia.find();
+    const { _id } = req.body;
+
+    if (!req.body._id) return res.status(203).json({msg: "Debe enviar el id del usuario"});
+    if (Object.values(req.body).includes("")) return res.status(203).json({msg: "Debe enviar todos los datos requeridos"});
+    if (!mongoose.isValidObjectId(_id)) return res.status(203).json({msg: "Id de usuario incorrecta"});
+    
+    const idObject = new mongoose.Types.ObjectId(_id);
+
+    const asistencias = await Asistencia.find({idUser: idObject});
     if (!asistencias) return res.status(203).json({ msg: "No existen asistencias guardadas" });
 
     return res.status(200).json({ asistencias });
@@ -82,14 +91,14 @@ export const obtenerAsistenciasController = async (req, res) => {
 //Actualizar Asistencia
 export const actualizarAsistenciaController = async (req, res) => {
   try {
-    const { id } = req.params;
+    const { _id } = req.params;
 
     delete req.body.idUser;
     delete req.body._id;
     delete req.body.__v;
 
-    if (!mongoose.isValidObjectId(id)) return res.status(203).json({ msg: "Id inválida" });
-    const idObject = new mongoose.Types.ObjectId(id);
+    if (!mongoose.isValidObjectId(_id)) return res.status(203).json({ msg: "Id inválida" });
+    const idObject = new mongoose.Types.ObjectId(_id);
 
     await check("checkInTime")
           .optional()
@@ -178,13 +187,12 @@ export const eliminarAsistenciaController = async (req, res) => {
 
 
 export const obtenerAsistenciasPorUserController = async (req, res) => {
-  const { id } = req.params;
+  const { username } = req.params;
 
   try {
-    if (!mongoose.isValidObjectId(id)) return res.satus(203).json({ msg: "Id inválido" });
-    const idObject = new mongoose.Types.ObjectId(id);
+    const userBD = await User.findOne({username});
 
-    const asistencias = await Asistencia.find({ idUser: idObject });
+    const asistencias = await Asistencia.find({ idUser : userBD._id });
 
     if (asistencias.length > 0) {
       return res.status(200).json({
