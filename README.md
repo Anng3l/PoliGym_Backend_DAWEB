@@ -2,9 +2,9 @@
   <h1>Backend de gestión del PoliGym</h1>
   <img src="https://res.cloudinary.com/dj60kni7n/image/upload/v1737169493/asdasd_cfkbbc.png" alt="logo" width="250" height="auto" />
   
-  <h4>
+  <h3>
     Sistema BackEnd
-  </h4>
+  </h3>
 </div>
 
 <br />
