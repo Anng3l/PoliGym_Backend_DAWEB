@@ -24,6 +24,7 @@
 
 <!-- About the Project -->
 ## :star2: Acerca del proyecto
+<p>Proyecto backend para un sistema fullstack de gestión del gimnasio PoliGym</p>
 
 <!-- TechStack -->
 ### :space_invader: Tech Stack
