@@ -13,7 +13,6 @@
 # :notebook_with_decorative_cover: Tabla de contenidos
 
 - [Acerca del proyecto](#star2-about-the-project)
-  * [Screenshots](#camera-screenshots)
   * [Tech Stack](#space_invader-tech-stack)
   * [Características](#dart-features)
   * [Correr Localmente](#running-run-locally)
@@ -31,9 +30,9 @@
 
 <details>
   <ul>
-    <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript">Node JS</a></li>
-    <li><a href="https://reactjs.org/">Express.js</a></li>
-    <li><a href="https://getbootstrap.com/">MongoDB</a></li>
+    <li><a href="https://nodejs.org/en">Node.js</a></li>
+    <li><a href="https://expressjs.com/">Express.js</a></li>
+    <li><a href="https://www.mongodb.com/es/atlas">MongoDB Atlas</a></li>
   </ul>
 </details>
 
