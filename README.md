@@ -1,8 +1,9 @@
 <div align="center">
   <h1>Backend de gestión del PoliGym</h1>
+  <img src="https://res.cloudinary.com/dj60kni7n/image/upload/v1737169254/lgooo_wny2hm.png" alt="logo" width="200" height="auto" />
   
   <p>
-    Sistema FrontEnd
+    Sistema BackEnd
   </p>
 </div>
 
