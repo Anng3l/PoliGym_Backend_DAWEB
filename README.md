@@ -1,5 +1,5 @@
 <div align="center">
-  <h1>PokeFortress</h1>
+  <h1>Backend de gestión del PoliGym</h1>
   
   <p>
     Sistema FrontEnd
