@@ -2,9 +2,9 @@
   <h1>Backend de gestión del PoliGym</h1>
   <img src="https://res.cloudinary.com/dj60kni7n/image/upload/v1737169493/asdasd_cfkbbc.png" alt="logo" width="250" height="auto" />
   
-  <h3>
+  <h2>
     Sistema BackEnd
-  </h3>
+  </h2>
 </div>
 
 <br />
@@ -15,15 +15,15 @@
 - [Acerca del proyecto](#star2-about-the-project)
   * [Screenshots](#camera-screenshots)
   * [Tech Stack](#space_invader-tech-stack)
-  * [Features](#dart-features)
-  * [Run Locally](#running-run-locally)
+  * [Características](#dart-features)
+  * [Correr Localmente](#running-run-locally)
   * [Deployment](#triangular_flag_on_post-deployment)
 - [Roadmap](#compass-roadmap)
 
   
 
 <!-- About the Project -->
-## :star2: About the Project
+## :star2: Acerca del proyecto
 
 <!-- TechStack -->
 ### :space_invader: Tech Stack
@@ -37,7 +37,7 @@
 </details>
 
 <!-- Features -->
-### :dart: Features
+### :dart: Características
 
 - Autenticación
 - Gestión de asistencias
@@ -47,7 +47,7 @@
 
 
 <!-- Run Locally -->
-### :running: Run Locally
+### :running: Correr Localmente
 
 Clonar el proyecto
 
