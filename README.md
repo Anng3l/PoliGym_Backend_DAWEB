@@ -10,7 +10,7 @@
 <br />
 
 <!-- Table of Contents -->
-# :notebook_with_decorative_cover: Table of Contents
+# :notebook_with_decorative_cover: Tabla de contenidos
 
 - [Acerca del proyecto](#star2-about-the-project)
   * [Screenshots](#camera-screenshots)
