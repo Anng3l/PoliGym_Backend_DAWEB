@@ -12,7 +12,7 @@ import dbConnect from "./config/dbConnect.js";
 import cloudinary from "cloudinary"
 import fileUpload from "express-fileupload";
 import cookieParser from "cookie-parser";
-
+import cors from "cors"
 
 //Inicia la conexión a la bd en MongoDB
 dbConnect();
