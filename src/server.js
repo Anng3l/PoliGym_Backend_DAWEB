@@ -41,6 +41,13 @@ app.use(express.json());
     //Middleware para cookies
 app.use(cookieParser());
 
+    //Solicitudes desde un localhost en particular
+app.use(cors({
+    origin: "http://localhost:5173",
+    methods: "GET,POST,PUT,DELETE,OPTIONS",
+    credentials: true
+}));
+
 app.get("/", (req, res) => {
     res.send("Server On");
 })
