@@ -66,10 +66,9 @@ export const crearAsistenciaController = async (req, res) => {
 // Obtener todas las asistencias ------------------------------------------------------------------------------------------------------------
 export const obtenerAsistenciasController = async (req, res) => {
   try {
-    const { _id } = req.body;
+    const _id = req.user._id;
 
-    if (!req.body._id) return res.status(203).json({msg: "Debe enviar el id del usuario"});
-    if (Object.values(req.body).includes("")) return res.status(203).json({msg: "Debe enviar todos los datos requeridos"});
+    if (!_id) return res.status(203).json({msg: "Debe enviar el id del usuario"});
     if (!mongoose.isValidObjectId(_id)) return res.status(203).json({msg: "Id de usuario incorrecta"});
     
     const idObject = new mongoose.Types.ObjectId(_id);

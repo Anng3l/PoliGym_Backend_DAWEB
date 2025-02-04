@@ -7,9 +7,9 @@ import { accountVerificationMiddleware } from "../middlewares/accountVerificatio
 
 const router = Router();
 
-router.post("/progresos", accountVerificationMiddleware, verifyToken, authorizedRoles("cliente"), createOneProgressController);
-router.get("/progresos/:username", accountVerificationMiddleware, verifyToken, authorizedRoles("entrenador", "cliente"), listarProgresosUsuarioController);
-router.put("/progresos/:_id", accountVerificationMiddleware, verifyToken, authorizedRoles("cliente"), updateOneProgressController);
-router.delete("/progresos/:_id", accountVerificationMiddleware, verifyToken, authorizedRoles("cliente"), deleteOneProgressController);
+router.post("/progresos", verifyToken, accountVerificationMiddleware, authorizedRoles("cliente"), createOneProgressController);
+router.get("/progresos/:username", verifyToken, accountVerificationMiddleware, authorizedRoles("entrenador", "cliente"), listarProgresosUsuarioController);
+router.put("/progresos/:_id", verifyToken, accountVerificationMiddleware, authorizedRoles("cliente"), updateOneProgressController);
+router.delete("/progresos/:_id", verifyToken, accountVerificationMiddleware, authorizedRoles("cliente"), deleteOneProgressController);
 
 export default router;

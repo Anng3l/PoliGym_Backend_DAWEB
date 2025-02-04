@@ -20,6 +20,7 @@ const verifyToken = async (req, res, next) => {
             return res.status(401).json({msg: "Fallo al autenticar"});
         }
         req.user = decoded;
+        //console.log("En verifyToken: ", req.user)
         next();
     })
 }

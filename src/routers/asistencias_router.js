@@ -6,10 +6,10 @@ import { accountVerificationMiddleware } from "../middlewares/accountVerificatio
 
 const router = Router();
 
-router.post("/asistencias", accountVerificationMiddleware, verifyToken, authorizedRoles("entrenador", "cliente"), crearAsistenciaController);
-router.put("/asistencias/:_id", accountVerificationMiddleware, verifyToken, authorizedRoles("entrenador"), actualizarAsistenciaController);
-router.delete("/asistencias/:id", accountVerificationMiddleware, verifyToken, authorizedRoles("entrenador"), eliminarAsistenciaController);
-router.get("/asistencias/buscar/:username", accountVerificationMiddleware, verifyToken, authorizedRoles("entrenador"), obtenerAsistenciasPorUserController);
-router.get("/asistencias", accountVerificationMiddleware, verifyToken, authorizedRoles("cliente"), obtenerAsistenciasController)
+router.post("/asistencias", verifyToken, accountVerificationMiddleware, authorizedRoles("entrenador", "cliente"), crearAsistenciaController);
+router.put("/asistencias/:_id", verifyToken, accountVerificationMiddleware, authorizedRoles("entrenador"), actualizarAsistenciaController);
+router.delete("/asistencias/:id", verifyToken, accountVerificationMiddleware, authorizedRoles("entrenador"), eliminarAsistenciaController);
+router.get("/asistencias/buscar/:username", verifyToken, accountVerificationMiddleware, authorizedRoles("entrenador"), obtenerAsistenciasPorUserController);
+router.get("/asistencias", verifyToken, accountVerificationMiddleware, authorizedRoles("cliente"), obtenerAsistenciasController)
 
 export default router;

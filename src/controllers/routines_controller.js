@@ -6,8 +6,8 @@ import { check, validationResult } from "express-validator";
 
 // Crear una rutina
 const createRoutine = async (req, res) => {
-  const { idUserRutina, name, description } = req.body;
-
+  const { name, description } = req.body;
+  const idUserRutina = req.user._id
   try {
     if (Object.values(req.body).includes("")) return res.status(203).json({msg: "Debe enviar todos los datos"});
     if (!name) return res.status(203).json({msg: "Debe ingresar el nombre del entrenamiento"});

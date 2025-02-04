@@ -5,7 +5,7 @@ import { check, validationResult } from "express-validator";
 import mongoose from "mongoose";
 
 const createOneProgressController = async (req, res) => {
-    const { idUser } = req.body;
+    const idUser = req.user._id;
 
     try {
         if (Object.values(req.body).includes("")) return res.status(203).json({msg: "Debe ingresar todos los valores especificados"});
