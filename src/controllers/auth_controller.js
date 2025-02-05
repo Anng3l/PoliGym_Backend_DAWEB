@@ -65,7 +65,7 @@ const logInController = async (req, res) => {
 
         res.cookie("jwt", refreshJwt, { httpOnly: true, secure: true, maxAge: 86400000 });
 
-        return res.status(200).json({token, role: user.role, _id: user._id});
+        return res.status(200).json({token, role: user.role, _id: user._id, username: user.username});
     }
     catch(error)
     {
