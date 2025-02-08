@@ -7,6 +7,7 @@ import { check, validationResult } from "express-validator";
 // Crear una rutina
 const createRoutine = async (req, res) => {
   const { name, description } = req.body;
+  const datos = req.body
   const idUserRutina = req.user._id
   try {
     if (Object.values(req.body).includes("")) return res.status(203).json({msg: "Debe enviar todos los datos"});
@@ -41,13 +42,49 @@ const createRoutine = async (req, res) => {
         errores: errores.array()
       });
     };
+
+    if (datos.exercises)
+    {
+      for (const [index, ejercicio] of datos.exercises.entries()) {
+        await check(`exercises[${index}].name`)
+              .optional()
+              .trim()
+              .isString()
+              .isLength({min: 2, max: 40})
+              .withMessage("El nombre del ejercicio debe tener entre 2 y 40 dígitos")
+              .matches(/^[A-Za-z0-9 ]+$/)
+              .withMessage("El nombre sólo puede contener letras y números")
+              .run(req)
+        
+        await check(`exercises[${index}].series`)
+              .optional()
+              .trim()
+              .isInt({min: 1})
+              .withMessage("Las series deben ser número enteros positivos")
+              .run(req)
+
+        await check(`exercises[${index}].repetitions`)
+              .optional()
+              .trim()
+              .isFloat({min: 1, max: 3600})
+              .withMessage("Las repeticiones deben ser números positivos")
+              .run(req)
+      };
+      const erroresEjercicios = validationResult(req);
+      if (!erroresEjercicios.isEmpty()) {
+        return res.status(400).json({
+          msg: "Errores en la validación de campos de ejercicios",
+          errores: erroresEjercicios.array()
+        });
+      };
+    };
     
     const newRoutine = new Routine({ ...req.body });
     newRoutine.idUserRutina = objectId;
     await newRoutine.save();
     
     return res.status(201).json({msg: "Rutina creada satisfactoriamente"});
-  } 
+  }
   catch (error) {
     return res.status(500).json({
       succes: false,

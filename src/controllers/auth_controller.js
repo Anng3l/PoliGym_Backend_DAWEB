@@ -403,6 +403,8 @@ const recoverPasswordController = async (req, res) => {
     const cookies = req.cookies;
     const {password, confirmPassword} = req.body;
 
+    console.log(req.body)
+
     await check("password")
         .isStrongPassword({ minLength: 8 })
         .trim()
