@@ -10,7 +10,7 @@ const router = Router();
 
 router.post("/users", verifyToken, authorizedRoles("administrador"), createUserController);
 router.put("/users/:username", verifyToken, accountVerificationMiddleware, authorizedRoles("administrador"), updateUserController);
-router.get("/users", verifyToken, accountVerificationMiddleware, authorizedRoles("administrador"), getAllUsersController);
+router.get("/users", verifyToken, accountVerificationMiddleware, authorizedRoles("administrador", "entrenador"), getAllUsersController);
 router.get("/users/:username", verifyToken, accountVerificationMiddleware, authorizedRoles("administrador"), getOneUserController);
 router.get("/users/role/:role", verifyToken, accountVerificationMiddleware, authorizedRoles("administrador"), getUsersByRoleController);
 router.delete("/users/:username", verifyToken, accountVerificationMiddleware, authorizedRoles("administrador"), deleteOneUserController);
