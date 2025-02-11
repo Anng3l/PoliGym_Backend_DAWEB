@@ -41,18 +41,25 @@ app.use(express.json());
     //Middleware para cookies
 app.use(cookieParser());
 
-    //Solicitudes desde un localhost en particular
+    //Solicitudes desde un dominio en particular
+const allowedOrigins = [
+    "https://poli-gym-frontend.vercel.app",
+    "http://localhost:5173"
+];
+
 app.use(cors({
-    origin: "http://localhost:5173",
+    origin: function (origin, callback) {
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error("Not allowed by CORS"));
+        }
+    },
     methods: "GET,POST,PUT,DELETE,OPTIONS",
     credentials: true
 }));
 
-app.use(cors({
-    origin: "https://poli-gym-frontend.vercel.app",
-    methods: "GET,POST,PUT,DELETE,OPTIONS",
-    credentials: true
-}));
+
 
 app.get("/", (req, res) => {
     res.send("Server On");
