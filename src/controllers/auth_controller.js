@@ -387,7 +387,7 @@ const confirmTokenController = async (req, res) => {
 
         res.cookie("userId", idUser, {httpOnly: true, secure: true, maxAge: 86400000});
     
-        return res.status(200).json({msg: "Su identidad ha sido verificada. Ya puede restablecer su contraseña."});
+        return res.status(200).json({msg: "Su identidad ha sido verificada. Ya puede restablecer su contraseña.", idUser: userId});
     }
     catch (error)
     {
@@ -400,10 +400,7 @@ const confirmTokenController = async (req, res) => {
 };
 
 const recoverPasswordController = async (req, res) => {
-    const cookies = req.cookies;
-    const {password, confirmPassword} = req.body;
-
-    console.log(req.body)
+    const {idUser, password, confirmPassword} = req.body;
 
     await check("password")
         .isStrongPassword({ minLength: 8 })
@@ -435,8 +432,7 @@ const recoverPasswordController = async (req, res) => {
     try
     {
         if (Object.values(req.body).includes("")) return res.status(203).json({msg: "Envíe todos los datos solicitados"});
-        if (!cookies) return res.status(203).json({msg: "No se ha enviado la cookie requerida"});
-        const idObject = cookies.userId;
+        const idObject = req.body.idUser
         if (!mongoose.isValidObjectId(idObject)) return res.status(203).json({msg: "La id es inválida"});
         const idUser = new mongoose.Types.ObjectId(idObject);
         const userBD = await User.findOne({_id: idUser});
@@ -452,6 +448,7 @@ const recoverPasswordController = async (req, res) => {
         userBD.password = await userBD.encryptPassword(password);
         userBD.recoverPassword = false;
         userBD.token = null;
+
         await userBD.save();
 
         res.clearCookie("userId", {httpOnly: true, secure: true});
