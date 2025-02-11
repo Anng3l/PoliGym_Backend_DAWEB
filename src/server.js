@@ -49,7 +49,7 @@ app.use(cors({
 }));
 
 app.use(cors({
-    origin: "https://poli-gym-frontend.vercel.app/",
+    origin: "https://poli-gym-frontend.vercel.app",
     methods: "GET,POST,PUT,DELETE,OPTIONS",
     credentials: true
 }));
