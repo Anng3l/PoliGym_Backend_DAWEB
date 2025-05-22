@@ -12,7 +12,7 @@ const routineSchema = new mongoose.Schema(
   {
     idUserRutina: { type: mongoose.Schema.Types.ObjectId, require: true, ref: "User" },
     name: { type: String, require: true },
-    description: { type: String, require: true },
+    description: { type: String, require: false },
     exercises: { type: [exerciseSchema], require: false, default: [] }
   },
   {
