@@ -3,7 +3,7 @@ import Asistencia from "../models/asistencia_model.js";
 import User from "../models/users_model.js"
 import { check, validationResult } from "express-validator";
 
-// Funcion Cerar Asistencia
+// Función crear Asistencia
 export const crearAsistenciaController = async (req, res) => {
   try {
     const { idUser } = req.body;
