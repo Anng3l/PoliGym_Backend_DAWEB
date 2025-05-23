@@ -22,7 +22,7 @@ const createRoutine = async (req, res) => {
           .isString()
           .trim()
           .isLength({ min: 5, max: 40 })
-          .withMessage("El nombre debe tener entre 5 y 20 dígitos")
+          .withMessage("El nombre debe tener entre 5 y 40 dígitos")
           .matches(/^[A-Za-z0-9 ]+$/)
           .withMessage("El nombre sólo puede contener letras y números")
           .run(req);
