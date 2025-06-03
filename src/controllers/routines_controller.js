@@ -9,6 +9,7 @@ const createRoutine = async (req, res) => {
   const { name, description } = req.body;
   const datos = req.body
   const idUserRutina = req.user._id
+  
   try {
     if (Object.values(req.body).includes("")) return res.status(203).json({msg: "Debe enviar todos los datos"});
     if (!name) return res.status(203).json({msg: "Debe ingresar el nombre del entrenamiento"});
@@ -94,6 +95,115 @@ const createRoutine = async (req, res) => {
   }
 };
 
+
+
+
+
+
+
+
+
+
+// Crear una rutina
+const createRoutineEntrenador = async (req, res) => {
+  const { name, description } = req.body;
+  const datos = req.body
+  const idUserRutina = datos.userId;
+  
+  try {
+    if (Object.values(req.body).includes("")) return res.status(203).json({msg: "Debe enviar todos los datos"});
+    if (!name) return res.status(203).json({msg: "Debe ingresar el nombre del entrenamiento"});
+    if (!description) return res.status(203).json({msg: "Debe ingresar una descripción para la rutina"});
+    if (!idUserRutina) return res.status(203).json({msg: "Debe ingresar el id de un usuario"});
+    
+    if (!mongoose.isValidObjectId(idUserRutina)) return res.status(203).json({msg: "Debe ingresar un id de usuario correcto"});     
+    const objectId = new mongoose.Types.ObjectId(idUserRutina);
+
+    await check("name")
+          .isString()
+          .trim()
+          .isLength({ min: 5, max: 40 })
+          .withMessage("El nombre debe tener entre 5 y 40 dígitos")
+          .matches(/^[A-Za-z0-9 ]+$/)
+          .withMessage("El nombre sólo puede contener letras y números")
+          .run(req);
+
+    await check("description")
+          .isString()
+          .trim()
+          .isLength({max:400})
+          .withMessage("La descripción debe tener contenido. Máximo 400 dígitos.")
+          .run(req);
+
+    const errores = validationResult(req);
+    
+    if (!errores.isEmpty()) {
+      return res.status(400).json({
+        msg: "Errores en la validación de campos",
+        errores: errores.array()
+      });
+    };
+
+    if (datos.exercises)
+    {
+      for (const [index, ejercicio] of datos.exercises.entries()) {
+        await check(`exercises[${index}].name`)
+              .optional()
+              .trim()
+              .isString()
+              .isLength({min: 2, max: 40})
+              .withMessage("El nombre del ejercicio debe tener entre 2 y 40 dígitos")
+              .matches(/^[A-Za-z0-9 ]+$/)
+              .withMessage("El nombre sólo puede contener letras y números")
+              .run(req)
+        
+        await check(`exercises[${index}].series`)
+              .optional()
+              .trim()
+              .isInt({min: 1})
+              .withMessage("Las series deben ser número enteros positivos")
+              .run(req)
+
+        await check(`exercises[${index}].repetitions`)
+              .optional()
+              .trim()
+              .isFloat({min: 1, max: 3600})
+              .withMessage("Las repeticiones deben ser números positivos")
+              .run(req)
+      };
+      const erroresEjercicios = validationResult(req);
+      if (!erroresEjercicios.isEmpty()) {
+        return res.status(400).json({
+          msg: "Errores en la validación de campos de ejercicios",
+          errores: erroresEjercicios.array()
+        });
+      };
+    };
+    
+    const newRoutine = new Routine({ ...req.body });
+    newRoutine.idUserRutina = objectId;
+    await newRoutine.save();
+    
+    return res.status(201).json({msg: "Rutina creada satisfactoriamente"});
+  }
+  catch (error) {
+    return res.status(500).json({
+      succes: false,
+      msg: "Error al intentar crear una rutina",
+      error: error.message
+    });
+  }
+};
+
+
+
+
+
+
+
+
+
+
 // Obtener una rutina por Username
 const getRoutinesByUsername = async (req, res) => {
   try {
@@ -116,6 +226,11 @@ const getRoutinesByUsername = async (req, res) => {
     });
   }
 };
+
+
+
+
+
 
 // Actualizar una rutina
 const updateRoutine = async (req, res) => {
@@ -222,6 +337,13 @@ const updateRoutine = async (req, res) => {
   }
 };
 
+
+
+
+
+
+
+
 // Eliminar una rutina
 const deleteRoutine = async (req, res) => {
   const { _id } = req.params;
@@ -251,6 +373,9 @@ const deleteRoutine = async (req, res) => {
 
 export {
   createRoutine,
+  
+  createRoutineEntrenador,
+
   getRoutinesByUsername,
   updateRoutine,
   deleteRoutine,

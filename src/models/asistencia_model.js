@@ -9,9 +9,6 @@ const asistenciaSchema = new mongoose.Schema({
   checkInTime: {
     type: Date,
     required: true,
-  },
-  checkOutTime: {
-    type: Date
   }
 });
 

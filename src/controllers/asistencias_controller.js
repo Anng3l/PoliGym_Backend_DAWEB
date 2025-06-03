@@ -1,3 +1,7 @@
+//Con las validaciones de las HU
+
+
+
 import mongoose from "mongoose";
 import Asistencia from "../models/asistencia_model.js";
 import User from "../models/users_model.js"
@@ -19,11 +23,6 @@ export const crearAsistenciaController = async (req, res) => {
           .toDate()
           .run(req);
           
-    await check("checkOutTime")
-          .exists().withMessage("La fecha de salida es obligatoria")
-          .isISO8601().withMessage("Debe ser una fecha (yyyy-mm-dd'T'hh:mm:ssZ)")
-          .toDate()
-          .run(req);
 
     const errores = validationResult(req);
 
@@ -40,9 +39,6 @@ export const crearAsistenciaController = async (req, res) => {
     }
 
     const fechaEntrada = new Date(req.body.checkInTime);
-    const fechaSalida = new Date(req.body.checkOutTime);
-
-    if (fechaEntrada > fechaSalida) return res.status(203).json({ msg: "La fecha de entrada no puede ser posterior a la fecha de salida" });
 
     const nuevaAsistencia = new Asistencia({ ...req.body });
 
@@ -62,6 +58,8 @@ export const crearAsistenciaController = async (req, res) => {
     });
   }
 };
+
+
 
 // Obtener todas las asistencias ------------------------------------------------------------------------------------------------------------
 export const obtenerAsistenciasController = async (req, res) => {
@@ -87,6 +85,11 @@ export const obtenerAsistenciasController = async (req, res) => {
   }
 };
 
+
+
+
+
+
 //Actualizar Asistencia
 export const actualizarAsistenciaController = async (req, res) => {
   try {
@@ -104,12 +107,6 @@ export const actualizarAsistenciaController = async (req, res) => {
           .isISO8601().withMessage("Debe ser una fecha (yyyy-mm-dd'T'hh:mm:ssZ)")
           .toDate()
           .run(req);
-        
-    await check("checkOutTime")
-          .optional()
-          .isISO8601().withMessage("Debe ser una fecha (yyyy-mm-dd'T'hh:mm:ssZ)")
-          .toDate()
-          .run(req);
 
     const errores = validationResult(req);
 
@@ -121,24 +118,12 @@ export const actualizarAsistenciaController = async (req, res) => {
       });
     };
 
-    let conversion;
-    const asistenciaComprobacion = await Asistencia.findOne({ _id: idObject });
-    if (req.body.checkInTime && !req.body.checkOutTime)
-    {
-      conversion = req.body.checkInTime; 
-      if (conversion >= asistenciaComprobacion.checkOutTime) return res.status(203).json({ msg: "La fecha de ingreso no puede ser mayor o igual que la fecha de salida" });
-    }
-    else if (!req.body.checkInTime && req.body.checkOutTime)
-    {
-      conversion = req.body.checkOutTime;
-      if (conversion <= asistenciaComprobacion.checkInTime) return res.status(203).json({ msg: "La fecha de salida no puede ser menor o igual que la fecha de ingreso" });
-    }
-    else if (req.body.checkInTime && req.body.checkOutTime)
-    {
-      let x = new Date(req.body.checkInTime);
-      let y = new Date(req.body.checkOutTime);
-      if (x >= y) return res.status(203).json({ msg: "La fecha de ingreso no puede ser mayor o igual que la fecha de salida" });
-    }
+
+    let fechaAhora = Date.now();
+    let conversion = req.body.checkInTime; 
+    if (fechaAhora < conversion) return res.status(203).json({ msg: "La fecha no puede ser futura" });
+  
+
 
     const asistenciaActualizada = await Asistencia.findByIdAndUpdate(
       {_id: idObject},

@@ -6,6 +6,7 @@ import routerRutinas from "./routers/routines_router.js";
 import routerProgresos from "./routers/progresos_router.js";
 import routerAuth from "./routers/auth_router.js";
 import routerAsistencias from "./routers/asistencias_router.js";
+import routerAlimentacion from "./routers/alimentacion_router.js";
 
 import dotenv from "dotenv"
 import dbConnect from "./config/dbConnect.js";
@@ -69,7 +70,7 @@ app.use("/api", routerRutinas);
 app.use("/api", routerProgresos);
 app.use("/api", routerAuth);
 app.use("/api", routerAsistencias);
-
+app.use("/api", routerAlimentacion);
 
 
 export default app;
