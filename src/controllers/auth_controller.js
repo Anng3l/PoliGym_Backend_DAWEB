@@ -163,6 +163,8 @@ const registerController = async (req, res) => {
         const token = nuevoUsuario.createToken();
         nodemailerMethods.sendMailToUser(email, token);
 
+        nuevoUsuario.token = token;
+
         //Se manda a la BD
         await nuevoUsuario.save();
 
@@ -181,11 +183,17 @@ const registerController = async (req, res) => {
 const verificacionDeRegistroController = async (req, res) => {
     try
     {
-        const { token } = req.params;
+        const { token, email } = req.query;
+        
         if (!token) return res.status(500).json({msg: "Token no enviado o inválido"});
 
-        const clienteToken = await User.findOne({token});
+        const clienteToken = await User.findOne({email});
         if (!clienteToken.token) return res.status(500).json({msg: "La cuenta ya ha sido confirmada"});
+
+        if (clienteToken.token !== token)
+        {
+            return res.status(203).json({msg: "Tokens diferentes"});    
+        }
 
         clienteToken.token = null;
         clienteToken.confirmEmail = true;

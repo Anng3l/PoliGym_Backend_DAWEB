@@ -77,10 +77,6 @@ const updateAlimentacionController = async (req, res) => {
     
     try
     {
-        if (Object.values(req.body).includes("")) return res.status(203).json({msg: "Debe enviar todos los datos"});
-        if (!datos.name) return res.status(203).json({msg: "Debe ingresar el nombre de la alimentación"});
-        if (!datos.informacion) return res.status(203).json({msg: "Debe ingresar una descripción de la alimentación"});
-
         /*
         if (!mongoose.isValidObjectId(idUserAlimentacion)) return res.status(203).json({msg: "Debe ingresar un id de usuario correcto"});     
         const objectId = new mongoose.Types.ObjectId(idUserAlimentacion);
@@ -138,9 +134,9 @@ const getAllAlimentacionControllerEntrenador = async (req, res) => {
         if (!mongoose.isValidObjectId(_id)) return res.status(203).json({msg: "Debe ingresar un id de usuario correcto"});     
         const objectId = new mongoose.Types.ObjectId(_id);
 
-        const alimentaciones = await Alimentacion.find({ userId: objectId });
+        const alimentaciones = await Alimentacion.find({ idUser: objectId });
 
-        if (alimentaciones.length <= 0) return res.status(200).json({ msg: "El usuario no posee registros de alimentación" });
+        if (alimentaciones.length < 0) return res.status(200).json({ msg: "El usuario no posee registros de alimentación" });
 
         return res.status(200).json({Alimentaciones: alimentaciones});
     }
@@ -149,8 +145,8 @@ const getAllAlimentacionControllerEntrenador = async (req, res) => {
     }
 }
 
-const getAllAlimentacionController = async () => {
-
+const getAllAlimentacionController = async (req, res) => {
+    
     const userId = req.user._id;
 
     try
@@ -158,8 +154,8 @@ const getAllAlimentacionController = async () => {
         if (!mongoose.isValidObjectId(userId)) return res.status(203).json({msg: "Debe ingresar un id de usuario correcto"});     
         const objectId = new mongoose.Types.ObjectId(userId);
 
-        const alimentaciones = await Alimentacion.find({ userId: objectId });
-
+        const alimentaciones = await Alimentacion.find({ idUser: objectId });
+        
         if (alimentaciones.length <= 0) return res.status(200).json({ msg: "El usuario no posee registros de alimentación" });
 
         return res.status(200).json({Alimentaciones: alimentaciones});
@@ -171,7 +167,7 @@ const getAllAlimentacionController = async () => {
 
 
 
-const deleteAlimentacionController = async () => {
+const deleteAlimentacionController = async (req, res) => {
     
     //_id de la alimentación
     const { _id } = req.params;

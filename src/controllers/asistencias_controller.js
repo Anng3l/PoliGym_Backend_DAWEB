@@ -7,11 +7,12 @@ import Asistencia from "../models/asistencia_model.js";
 import User from "../models/users_model.js"
 import { check, validationResult } from "express-validator";
 
-// Función crear Asistencia
-export const crearAsistenciaController = async (req, res) => {
+
+// Función crear asistencia Entrenador
+export const crearAsistenciaControllerEntrenador = async (req, res) => {
   try {
     const { idUser } = req.body;
-
+    if (!idUser) return res.status(400).json({ msg: "El id del usuario es requerido." });
     if (Object.values(req.body.idUser).includes("")) return res.status(203).json({msg: "Debe enviar valores en todos los campos"});
     
     if (!mongoose.isValidObjectId(idUser)) return res.status(203).json({msg: "Id de usuario incorrecta"});
@@ -34,14 +35,55 @@ export const crearAsistenciaController = async (req, res) => {
       });
     }
     
-    if (!idUser) {
-      return res.status(400).json({ msg: "El id del usuario es requerido." });
-    }
+    
 
     const fechaEntrada = new Date(req.body.checkInTime);
 
     const nuevaAsistencia = new Asistencia({ ...req.body });
 
+    const asistenciaGuardada = await nuevaAsistencia.save();
+    if (!asistenciaGuardada) return res.status(203).json({ msg: "La asistencia no pudo ser guardada en la BD" })
+    
+    return res.status(201).json({
+      message: "Asistencia creada exitosamente",
+      data: asistenciaGuardada,
+    });
+  } 
+  catch (error) {
+    return res.status(500).json({
+      succes: false,
+      msg: "Error al intentar crear una asistencia",
+      error: error.message
+    });
+  }
+};
+
+// Función crear Asistencia
+export const crearAsistenciaController = async (req, res) => {
+  try {
+    if (Object.values(req.user._id).includes("")) return res.status(203).json({msg: "Debe enviar valores en todos los campos"});
+    
+    if (!mongoose.isValidObjectId(req.user._id)) return res.status(203).json({msg: "Id de usuario incorrecta"});
+    const idObject = new mongoose.Types.ObjectId(req.user._id);
+
+    await check("checkInTime")
+          .exists().withMessage("La fehcha de ingreso es obligatoria")
+          .isISO8601().withMessage("Debe ser una fecha (yyyy-mm-dd'T'hh:mm:ssZ)")
+          .toDate()
+          .run(req);
+          
+    const errores = validationResult(req);
+
+    if (!errores.isEmpty())
+    {
+      return res.status(400).json({
+        msg: 'Errores de validación',
+        errores: errores.array()
+      });
+    }
+
+    const nuevaAsistencia = new Asistencia({ ...req.body });
+    nuevaAsistencia.idUser = idObject;
     const asistenciaGuardada = await nuevaAsistencia.save();
     if (!asistenciaGuardada) return res.status(203).json({ msg: "La asistencia no pudo ser guardada en la BD" })
     
