@@ -34,15 +34,13 @@ const createAlimentacionController = async (req, res) => {
             .trim()
             .isLength({ min: 5, max: 40 })
             .withMessage("El nombre debe tener entre 5 y 20 dígitos")
-            .matches(/^[A-Za-z0-9 ]+$/)
-            .withMessage("El nombre sólo puede contener letras y números")
             .run(req);
         
         await check("information")
             .isString()
             .trim()
-            .isLength({max:400})
-            .withMessage("La descripción debe tener contenido. Máximo 400 dígitos.")
+            .isLength({max:1000})
+            .withMessage("La descripción debe tener contenido. Máximo 1000 dígitos.")
             .run(req);
     
         const errores = validationResult(req);
