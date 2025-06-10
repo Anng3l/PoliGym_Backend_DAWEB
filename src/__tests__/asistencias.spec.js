@@ -1,213 +1,105 @@
-import { crearAsistencia, obtenerAsistencias, actualizarAsistencia, eliminarAsistencia, obtenerAsistenciasPorUsername } from "../controllers/asistencias_controller.js";
 import Asistencia from '../models/asistencia_model.js';
+import { crearAsistenciaControllerEntrenador } from "../controllers/asistencias_controller.js";
+import { validationResult, check } from 'express-validator';
+import mongoose from 'mongoose';
 
-jest.mock('../models/asistencia_model.js'); // Mock del modelo
+jest.mock('express-validator', () => ({
+  validationResult: jest.fn(),
+  check: jest.fn(() => ({
+    exists: () => ({
+      withMessage: () => ({
+        isISO8601: () => ({
+          withMessage: () => ({
+            toDate: () => ({
+              run: jest.fn(),
+            }),
+          }),
+        }),
+      }),
+    }),
+  })),
+}));
 
-describe('Controlador de Asistencia', () => {
-  afterEach(() => {
-    jest.clearAllMocks(); // Limpia los mocks después de cada prueba
+jest.mock('../models/asistencia_model.js');
+
+describe('crearAsistenciaControllerEntrenador', () => {
+  let req, res;
+
+  beforeEach(() => {
+    req = {
+      body: {
+        idUser: '60f7a6d8e2d3b93f58dbe1b1',
+        checkInTime: new Date().toISOString()
+      }
+    };
+
+    res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn()
+    };
+
+    validationResult.mockReturnValue({ isEmpty: () => true, array: () => [] });
   });
 
-  describe('crearAsistencia', () => {
-    it('debería crear una asistencia correctamente', async () => {
-      const req = {
-        body: {
-          userId: '123',
-          username: 'testuser',
-          date: '2024-12-03',
-          status: 'Present',
-          checkInTime: '09:00',
-          checkOutTime: '17:00',
-        },
-      };
-      const res = {
-        status: jest.fn().mockReturnThis(),
-        json: jest.fn(),
-      };
+  test('debe retornar 400 si no se proporciona idUser', async () => {
+    req.body.idUser = null;
 
-      const mockSave = jest.fn().mockResolvedValue(req.body);
-      Asistencia.mockImplementation(() => ({
-        save: mockSave,
-      }));
+    await crearAsistenciaControllerEntrenador(req, res);
 
-      await crearAsistencia(req, res);
-
-      expect(mockSave).toHaveBeenCalledTimes(1);
-      expect(res.status).toHaveBeenCalledWith(201);
-      expect(res.json).toHaveBeenCalledWith({
-        message: 'Asistencia creada exitosamente',
-        data: req.body,
-      });
-    });
-
-    it('debería devolver un error si falta el campo username', async () => {
-      const req = {
-        body: {
-          userId: '123',
-          date: '2024-12-03',
-          status: 'Present',
-          checkInTime: '09:00',
-          checkOutTime: '17:00',
-        },
-      };
-      const res = {
-        status: jest.fn().mockReturnThis(),
-        json: jest.fn(),
-      };
-
-      await crearAsistencia(req, res);
-
-      expect(res.status).toHaveBeenCalledWith(400);
-      expect(res.json).toHaveBeenCalledWith({ message: "El campo 'username' es requerido." });
-    });
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith({ msg: 'El id del usuario es requerido.' });
   });
 
-  describe('obtenerAsistencias', () => {
-    it('debería obtener todas las asistencias', async () => {
-      const asistenciasMock = [
-        { userId: '123', username: 'testuser', date: '2024-12-03', status: 'Present' },
-      ];
-      Asistencia.find.mockResolvedValue(asistenciasMock);
+  test('debe retornar 203 si hay campos vacíos en idUser', async () => {
+    req.body.idUser = { a: "" };
 
-      const req = {};
-      const res = {
-        status: jest.fn().mockReturnThis(),
-        json: jest.fn(),
-      };
+    await crearAsistenciaControllerEntrenador(req, res);
 
-      await obtenerAsistencias(req, res);
-
-      expect(Asistencia.find).toHaveBeenCalledTimes(1);
-      expect(res.status).toHaveBeenCalledWith(200);
-      expect(res.json).toHaveBeenCalledWith({
-        message: 'Asistencias obtenidas exitosamente',
-        data: asistenciasMock,
-      });
-    });
+    expect(res.status).toHaveBeenCalledWith(203);
+    expect(res.json).toHaveBeenCalledWith({ msg: 'Debe enviar valores en todos los campos' });
   });
 
-  describe('actualizarAsistencia', () => {
-    it('debería actualizar una asistencia correctamente', async () => {
-      const req = {
-        params: { id: '123' },
-        body: { status: 'Absent' },
-      };
-      const res = {
-        status: jest.fn().mockReturnThis(),
-        json: jest.fn(),
-      };
+  test('debe retornar 203 si el idUser no es un ObjectId válido', async () => {
+    req.body.idUser = 'idInvalido';
 
-      const updatedMock = { _id: '123', status: 'Absent' };
-      Asistencia.findByIdAndUpdate.mockResolvedValue(updatedMock);
+    await crearAsistenciaControllerEntrenador(req, res);
 
-      await actualizarAsistencia(req, res);
+    expect(res.status).toHaveBeenCalledWith(203);
+    expect(res.json).toHaveBeenCalledWith({ msg: 'Id de usuario incorrecta' });
+  });
 
-      expect(Asistencia.findByIdAndUpdate).toHaveBeenCalledWith(
-        '123',
-        { status: 'Absent' },
-        { new: true }
-      );
-      expect(res.status).not.toHaveBeenCalledWith(404);
-      expect(res.json).toHaveBeenCalledWith({
-        message: 'Asistencia actualizada exitosamente',
-        data: updatedMock,
-      });
+  test('debe guardar y retornar la asistencia correctamente', async () => {
+    req.body.idUser = '60f7a6d8e2d3b93f58dbe1b1';
+
+    const mockSave = jest.fn().mockResolvedValue({
+      _id: 'someid',
+      ...req.body,
     });
 
-    it('debería devolver un error si la asistencia no existe', async () => {
-      const req = {
-        params: { id: '123' },
-        body: { status: 'Absent' },
-      };
-      const res = {
-        status: jest.fn().mockReturnThis(),
-        json: jest.fn(),
-      };
+    Asistencia.mockImplementation(() => ({
+      save: mockSave
+    }));
 
-      Asistencia.findByIdAndUpdate.mockResolvedValue(null);
+    await crearAsistenciaControllerEntrenador(req, res);
 
-      await actualizarAsistencia(req, res);
-
-      expect(res.status).toHaveBeenCalledWith(404);
-      expect(res.json).toHaveBeenCalledWith({ message: 'Asistencia no encontrada' });
+    expect(res.status).toHaveBeenCalledWith(201);
+    expect(res.json).toHaveBeenCalledWith({
+      message: 'Asistencia creada exitosamente',
+      data: expect.any(Object),
     });
   });
 
-  describe('eliminarAsistencia', () => {
-    it('debería eliminar una asistencia correctamente', async () => {
-      const req = { params: { id: '123' } };
-      const res = {
-        status: jest.fn().mockReturnThis(),
-        json: jest.fn(),
-      };
+  test('debe retornar error 500 si ocurre una excepción', async () => {
+    Asistencia.mockImplementation(() => ({
+      save: jest.fn().mockRejectedValue(new Error('Error interno')),
+    }));
 
-      const deletedMock = { _id: '123' };
-      Asistencia.findByIdAndDelete.mockResolvedValue(deletedMock);
+    await crearAsistenciaControllerEntrenador(req, res);
 
-      await eliminarAsistencia(req, res);
-
-      expect(Asistencia.findByIdAndDelete).toHaveBeenCalledWith('123');
-      expect(res.status).toHaveBeenCalledWith(200);
-      expect(res.json).toHaveBeenCalledWith({
-        message: 'Asistencia eliminada exitosamente',
-        data: deletedMock,
-      });
-    });
-
-    it('debería devolver un error si la asistencia no existe', async () => {
-      const req = { params: { id: '123' } };
-      const res = {
-        status: jest.fn().mockReturnThis(),
-        json: jest.fn(),
-      };
-
-      Asistencia.findByIdAndDelete.mockResolvedValue(null);
-
-      await eliminarAsistencia(req, res);
-
-      expect(res.status).toHaveBeenCalledWith(404);
-      expect(res.json).toHaveBeenCalledWith({ message: 'Asistencia no encontrada' });
-    });
-  });
-
-  describe('obtenerAsistenciasPorUsername', () => {
-    it('debería obtener asistencias por username', async () => {
-      const req = { params: { username: 'testuser' } };
-      const res = {
-        status: jest.fn().mockReturnThis(),
-        json: jest.fn(),
-      };
-
-      const asistenciasMock = [
-        { userId: '123', username: 'testuser', date: '2024-12-03', status: 'Present' },
-      ];
-      Asistencia.find.mockResolvedValue(asistenciasMock);
-
-      await obtenerAsistenciasPorUsername(req, res);
-
-      expect(Asistencia.find).toHaveBeenCalledWith({ username: 'testuser' });
-      expect(res.status).toHaveBeenCalledWith(200);
-      expect(res.json).toHaveBeenCalledWith({
-        message: 'Asistencias obtenidas exitosamente',
-        data: asistenciasMock,
-      });
-    });
-
-    it('debería devolver un error si no se encuentran asistencias', async () => {
-      const req = { params: { username: 'unknownuser' } };
-      const res = {
-        status: jest.fn().mockReturnThis(),
-        json: jest.fn(),
-      };
-
-      Asistencia.find.mockResolvedValue([]);
-
-      await obtenerAsistenciasPorUsername(req, res);
-
-      expect(res.status).toHaveBeenCalledWith(404);
-      expect(res.json).toHaveBeenCalledWith({
-        message: 'No se encontraron asistencias para el usuario',
-      });
-    });
+    expect(res.status).toHaveBeenCalledWith(500);
+    expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+      msg: 'Error al intentar crear una asistencia',
+      error: 'Error interno'
+    }));
   });
 });
