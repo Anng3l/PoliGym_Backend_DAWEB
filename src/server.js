@@ -10,8 +10,8 @@ import routerAlimentacion from "./routers/alimentacion_router.js";
 
 import dotenv from "dotenv"
 import dbConnect from "./config/dbConnect.js";
-import cloudinary from "cloudinary"
-import fileUpload from "express-fileupload";
+//import cloudinary from "cloudinary"
+//import fileUpload from "express-fileupload";
 import cookieParser from "cookie-parser";
 import cors from "cors"
 
@@ -23,7 +23,7 @@ dotenv.config();
 
 const app = express();
 
-
+/*
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
     api_key: process.env.CLOUDINARY_API_KEY,
@@ -33,6 +33,7 @@ app.use(fileUpload({
     useTempFiles: true,
     tempFileDir: "./uploads"
 }));
+*/
 
 
 const PORT = process.env.PORT || 7001;

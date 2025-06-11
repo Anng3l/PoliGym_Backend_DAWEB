@@ -9,7 +9,7 @@ import nodemailerMethods from "../config/nodemailer.js";
 import mongoose from "mongoose";
 
 const logInController = async (req, res) => {
-    const cookies = req.cookies;
+    //const cookies = req.cookies;
     const {email, password} = req.body;
 
     await check("email")
@@ -53,17 +53,17 @@ const logInController = async (req, res) => {
 
         //Generación de jwt de acceso y de refresco
         const token = await createToken({_id: user._id, role: user.role});
-        const refreshJwt = await refreshToken({_id: user._id, role: user.role});
+        //const refreshJwt = await refreshToken({_id: user._id, role: user.role});
 
         //Control de login en caso de contar con cookie antigua en la petición. También para login en múltilples dispositivos.
         //Si no existen cookies o si jwt es undefined: true
-        let newRefreshTokenArray = !cookies?.jwt ? user.refreshToken : user.refreshToken.filter(rt => rt !== cookies.jwt);
+        //let newRefreshTokenArray = !cookies?.jwt ? user.refreshToken : user.refreshToken.filter(rt => rt !== cookies.jwt);
 
         //Para autenticación en múltiples dispositivos
-        user.refreshToken = [...newRefreshTokenArray, refreshJwt];
+        //user.refreshToken = [...newRefreshTokenArray, refreshJwt];
         await user.save();
 
-        res.cookie("jwt", refreshJwt, { httpOnly: true, secure: true, maxAge: 86400000 });
+        //res.cookie("jwt", refreshJwt, { httpOnly: true, secure: true, maxAge: 86400000 });
 
         return res.status(200).json({token, role: user.role, _id: user._id, username: user.username, name: user.name, lastname: user.lastname});
     }

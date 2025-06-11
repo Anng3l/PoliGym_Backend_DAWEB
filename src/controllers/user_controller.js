@@ -171,7 +171,7 @@ const updateUserController = async (req, res) => {
     delete datos._id;
     delete datos.token;
     delete datos.confirmEmail;
-    delete datos.refreshToken;
+    //delete datos.refreshToken;
     delete datos.recoverPassword;
 
     await check("username")
@@ -236,11 +236,14 @@ const updateUserController = async (req, res) => {
         if (Object.values(req.body).includes("")) return res.status(203).json({msg: "Debe ingresar datos para actualizar los datos del usuario"})
         const userBD = await User.findOne({username});
         if (!userBD) return res.status(203).json({msg: "No existe usuario con ese username"});
+
+
+        /*
         if (req?.files?.imagen)
         {
             const cloudinaryResponse = await cloudinary.uploader.upload(req.files.imagen.tempFilePath, {folder: "Fotos_De_Perfil"});
             newData.photo = cloudinaryResponse.secure_url;
-        }
+        }*/
 
         if (datos.password)
         {

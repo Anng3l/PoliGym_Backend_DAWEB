@@ -15,11 +15,20 @@ const userSchema = new mongoose.Schema({
         required: true,
         unique: true
     },
+
+
+
+    
+    /*
     photo: {
         type: String,
         required: false,
         default: ""
-    },
+    },*/
+
+
+
+
     email: {
         type: String,
         required: true,
@@ -33,7 +42,7 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true,
         enum: ["administrador", "entrenador", "cliente"]
-    },  //------------------ Admin no puede editarlos
+    },
     token: {
         type: String,
         required: false
@@ -43,7 +52,11 @@ const userSchema = new mongoose.Schema({
         require: false,
         default: false
     },
-    refreshToken: [String],
+
+
+    //refreshToken: [String],
+
+
     recoverPassword: {
         type: Boolean,
         required: false,
@@ -53,6 +66,9 @@ const userSchema = new mongoose.Schema({
 {
     timestamps: true
 });
+
+
+
 
 userSchema.methods.encryptPassword = async function(password) 
 {
