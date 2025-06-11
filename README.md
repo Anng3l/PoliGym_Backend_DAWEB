@@ -3,7 +3,7 @@
   <img src="https://res.cloudinary.com/dj60kni7n/image/upload/v1737169493/asdasd_cfkbbc.png" alt="logo" width="250" height="auto" />
   
   <h2>
-    Sistema BackEnd
+    Componente BackEnd
   </h2>
 </div>
 
