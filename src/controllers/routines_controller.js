@@ -339,8 +339,6 @@ const updateRoutineEntrenador = async (req, res) => {
               .isString()
               .isLength({min: 2, max: 40})
               .withMessage("El nombre del ejercicio debe tener entre 2 y 40 dígitos")
-              .matches(/^[A-Za-z0-9 ]+$/)
-              .withMessage("El nombre sólo puede contener letras y números")
               .run(req)
         
         await check(`exercises[${index}].series`)
@@ -449,8 +447,6 @@ const updateRoutine = async (req, res) => {
               .isString()
               .isLength({min: 2, max: 40})
               .withMessage("El nombre del ejercicio debe tener entre 2 y 40 dígitos")
-              .matches(/^[A-Za-z0-9 ]+$/)
-              .withMessage("El nombre sólo puede contener letras y números")
               .run(req)
         
         await check(`exercises[${index}].series`)
