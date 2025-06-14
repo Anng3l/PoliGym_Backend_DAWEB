@@ -23,7 +23,7 @@
 
 <!-- About the Project -->
 ## :star2: Acerca del proyecto
-<p>Proyecto backend para un sistema fullstack de gestión del gimnasio PoliGym</p>
+<p>Componente backend para la gestión del gimnasio PoliGym</p>
 
 <!-- TechStack -->
 ### :space_invader: Tech Stack
@@ -44,6 +44,7 @@
 - Gestión de progresos
 - Gestión de rutinas
 - Gestión de usuarios
+- Gestión de información de alimentación
 
 
 <!-- Run Locally -->
@@ -81,4 +82,5 @@ El proyecto se encuentra desplegado en: https://poligym.up.railway.app/
 * [x] Gestión de rutinas
 * [x] Gestión de progresos
 * [x] Gestión de asistencias
+* [x] Gestión de información de alimentación 
 * [x] Pruebas y Deploy
