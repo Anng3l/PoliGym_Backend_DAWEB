@@ -82,6 +82,13 @@ const registerController = async (req, res) => {
     {
         //Separar entre contraseña y los demás datos
         const {username, email, password, confirmPassword } = req.body;
+        
+
+        if (!email.endsWith('@epn.edu.ec')) {
+            return res.status(400).json({
+                error: 'El correo debe pertenecer al dominio @epn.edu.ec',
+            });
+        }
 
         await check("username")
             .isAlphanumeric()
