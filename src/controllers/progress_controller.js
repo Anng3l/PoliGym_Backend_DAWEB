@@ -79,7 +79,12 @@ const createOneProgressController = async (req, res) => {
     }
 };
 
-const listarProgresosUsuarioController = async (req, res) => {
+
+
+
+
+
+const listarProgresosUsuarioControllerEntrenador = async (req, res) => {
     const {username} = req.params;
 
     try {
@@ -96,6 +101,29 @@ const listarProgresosUsuarioController = async (req, res) => {
         });
     }
 };
+//Listar progresos para Clientes
+const listarProgresosUsuarioController = async (req, res) => {
+    const {username} = req.params;
+
+    try {
+        const userBd = await User.findOne({username});
+        if (!userBd) return res.status(203).json({ msg: "No existe usuario con el username proporcionado" })
+        if (!userBd._id.equals(req.user._id)) return res.status(203).json({ msg: "No puede listar las rutinas de otro usuario" });
+        const progresses = await Progress.find({idUser: userBd._id});
+        if (!progresses) return res.status(404).json({ message: `No hay progresos registrados para el usuario ${username}` });
+        return res.status(200).json(progresses);
+    } catch (error) {
+        return res.status(500).json({
+            succes: false,
+            msg: "Error al listar los progresos de un usuario",
+            error: error.message
+        });
+    }
+};
+
+
+
+
 
 const updateOneProgressController = async (req, res) => {
     try {
@@ -194,7 +222,10 @@ const deleteOneProgressController = async (req, res) => {
 
 export {
     createOneProgressController,
+
+    listarProgresosUsuarioControllerEntrenador,
     listarProgresosUsuarioController,
+    
     updateOneProgressController,
     deleteOneProgressController
 }
