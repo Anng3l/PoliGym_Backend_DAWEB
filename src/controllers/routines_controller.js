@@ -310,7 +310,7 @@ const updateRoutineEntrenador = async (req, res) => {
           .trim()
           .isString()
           .isLength({ min: 5, max: 50 })
-          .withMessage("El nombre debe tener entre 5 y 40 dígitos")
+          .withMessage("El nombre debe tener entre 5 y 50 dígitos")
           .run(req);
 
     await check("description")
@@ -419,10 +419,8 @@ const updateRoutine = async (req, res) => {
           .optional()
           .trim()
           .isString()
-          .isLength({ min: 5, max: 40 })
-          .withMessage("El nombre debe tener entre 5 y 40 dígitos")
-          .matches(/^[A-Za-z0-9 ]+$/)
-          .withMessage("El nombre sólo puede contener letras y números")
+          .isLength({ min: 5, max: 50 })
+          .withMessage("El nombre debe tener entre 5 y 50 dígitos")
           .run(req);
 
     await check("description")
