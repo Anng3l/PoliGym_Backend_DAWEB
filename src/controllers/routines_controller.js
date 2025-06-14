@@ -309,10 +309,8 @@ const updateRoutineEntrenador = async (req, res) => {
           .optional()
           .trim()
           .isString()
-          .isLength({ min: 5, max: 40 })
+          .isLength({ min: 5, max: 50 })
           .withMessage("El nombre debe tener entre 5 y 40 dígitos")
-          .matches(/^[\p{L}0-9\s,.\-()]+$/u)
-          .withMessage("El nombre contiene caracteres inválidos")
           .run(req);
 
     await check("description")
@@ -390,7 +388,8 @@ const updateRoutineEntrenador = async (req, res) => {
     });
   }
 };
-// Actualizar una rutina
+
+// Actualizar una rutina CLIENTE
 const updateRoutine = async (req, res) => {
   //_id de la rutina
   const { _id } = req.params;
