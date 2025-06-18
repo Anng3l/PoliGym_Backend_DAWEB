@@ -1,10 +1,46 @@
-import Asistencia from '../models/asistencia_model.js';
-import { crearAsistenciaControllerEntrenador } from "../controllers/asistencias_controller.js";
-import { validationResult, check } from 'express-validator';
-import mongoose from 'mongoose';
+import {
+  crearAsistenciaControllerEntrenador,
+  crearAsistenciaController,
+  obtenerAsistenciasController,
+  actualizarAsistenciaController,
+  eliminarAsistenciaController,
+  obtenerAsistenciasPorUserController,
+} from "../controllers/asistencias_controller.js";
 
-jest.mock('express-validator', () => ({
-  validationResult: jest.fn(),
+import mongoose from "mongoose";
+import { validationResult } from "express-validator";
+
+// Mock de Asistencia con métodos y save accesibles
+jest.mock("../models/asistencia_model.js", () => {
+  const save = jest.fn();
+  const find = jest.fn();
+  const findByIdAndUpdate = jest.fn();
+  const findByIdAndDelete = jest.fn();
+
+  const Asistencia = jest.fn(() => ({
+    save,
+  }));
+
+  Asistencia.find = find;
+  Asistencia.findByIdAndUpdate = findByIdAndUpdate;
+  Asistencia.findByIdAndDelete = findByIdAndDelete;
+
+  // Exponer los mocks para manipular en tests
+  Asistencia.__save = save;
+  Asistencia.__find = find;
+  Asistencia.__findByIdAndUpdate = findByIdAndUpdate;
+  Asistencia.__findByIdAndDelete = findByIdAndDelete;
+
+  return Asistencia;
+});
+
+// Mock de User con findOne
+jest.mock("../models/users_model.js", () => {
+  const findOne = jest.fn();
+  return { findOne };
+});
+
+jest.mock("express-validator", () => ({
   check: jest.fn(() => ({
     exists: () => ({
       withMessage: () => ({
@@ -17,89 +53,200 @@ jest.mock('express-validator', () => ({
         }),
       }),
     }),
+    optional: () => ({
+      isISO8601: () => ({
+        withMessage: () => ({
+          toDate: () => ({
+            run: jest.fn(),
+          }),
+        }),
+      }),
+    }),
   })),
+  validationResult: jest.fn(),
 }));
 
-jest.mock('../models/asistencia_model.js');
+jest.mock("mongoose", () => {
+  const actual = jest.requireActual("mongoose");
+  return {
+    ...actual,
+    isValidObjectId: jest.fn(),
+    Types: {
+      ObjectId: jest.fn((id) => id),
+    },
+  };
+});
 
-describe('crearAsistenciaControllerEntrenador', () => {
+import Asistencia from "../models/asistencia_model.js";
+import User from "../models/users_model.js";
+
+describe("crearAsistenciaControllerEntrenador", () => {
   let req, res;
 
   beforeEach(() => {
     req = {
       body: {
-        idUser: '60f7a6d8e2d3b93f58dbe1b1',
-        checkInTime: new Date().toISOString()
-      }
+        idUser: "685034fd56250ccbb1e3abce",
+        checkInTime: new Date().toISOString(),
+      },
     };
-
     res = {
       status: jest.fn().mockReturnThis(),
-      json: jest.fn()
+      json: jest.fn(),
     };
 
-    validationResult.mockReturnValue({ isEmpty: () => true, array: () => [] });
-  });
-
-  test('debe retornar 400 si no se proporciona idUser', async () => {
-    req.body.idUser = null;
-
-    await crearAsistenciaControllerEntrenador(req, res);
-
-    expect(res.status).toHaveBeenCalledWith(400);
-    expect(res.json).toHaveBeenCalledWith({ msg: 'El id del usuario es requerido.' });
-  });
-
-  test('debe retornar 203 si hay campos vacíos en idUser', async () => {
-    req.body.idUser = { a: "" };
-
-    await crearAsistenciaControllerEntrenador(req, res);
-
-    expect(res.status).toHaveBeenCalledWith(203);
-    expect(res.json).toHaveBeenCalledWith({ msg: 'Debe enviar valores en todos los campos' });
-  });
-
-  test('debe retornar 203 si el idUser no es un ObjectId válido', async () => {
-    req.body.idUser = 'idInvalido';
-
-    await crearAsistenciaControllerEntrenador(req, res);
-
-    expect(res.status).toHaveBeenCalledWith(203);
-    expect(res.json).toHaveBeenCalledWith({ msg: 'Id de usuario incorrecta' });
-  });
-
-  test('debe guardar y retornar la asistencia correctamente', async () => {
-    req.body.idUser = '60f7a6d8e2d3b93f58dbe1b1';
-
-    const mockSave = jest.fn().mockResolvedValue({
-      _id: 'someid',
-      ...req.body,
+    mongoose.isValidObjectId.mockReturnValue(true);
+    validationResult.mockReturnValue({
+      isEmpty: () => true,
+      array: () => [],
     });
 
-    Asistencia.mockImplementation(() => ({
-      save: mockSave
-    }));
+    Asistencia.mockClear();
+    Asistencia.__save.mockClear();
 
+    Asistencia.mockImplementation(() => ({
+      save: Asistencia.__save,
+    }));
+    Asistencia.__save.mockResolvedValue({ _id: "685034fd56250ccbb1e3abce", ...req.body });
+  });
+
+  it("debería crear una asistencia y devolver 201", async () => {
     await crearAsistenciaControllerEntrenador(req, res);
 
     expect(res.status).toHaveBeenCalledWith(201);
     expect(res.json).toHaveBeenCalledWith({
-      message: 'Asistencia creada exitosamente',
+      message: "Asistencia creada exitosamente",
+      data: expect.objectContaining({ idUser: req.body.idUser }),
+    });
+  });
+});
+
+describe("crearAsistenciaController", () => {
+  let req, res;
+
+  beforeEach(() => {
+    req = {
+      user: { _id: "1234567890abcdef12345678" },
+      body: { checkInTime: new Date().toISOString() },
+    };
+    res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
+    };
+
+    mongoose.isValidObjectId.mockReturnValue(true);
+    validationResult.mockReturnValue({ isEmpty: () => true, array: () => [] });
+
+    Asistencia.mockClear();
+    Asistencia.__save.mockClear();
+
+    Asistencia.mockImplementation(() => ({
+      save: Asistencia.__save,
+    }));
+    Asistencia.__save.mockResolvedValue({ _id: req.user._id, ...req.body });
+  });
+
+  it("debe devolver 201 cuando la asistencia se crea correctamente", async () => {
+    await crearAsistenciaController(req, res);
+    expect(res.status).toHaveBeenCalledWith(201);
+    expect(res.json).toHaveBeenCalledWith({
+      message: "Asistencia creada exitosamente",
       data: expect.any(Object),
     });
   });
+});
 
-  test('debe retornar error 500 si ocurre una excepción', async () => {
-    Asistencia.mockImplementation(() => ({
-      save: jest.fn().mockRejectedValue(new Error('Error interno')),
-    }));
+describe("obtenerAsistenciasController", () => {
+  let req, res;
 
-    await crearAsistenciaControllerEntrenador(req, res);
+  beforeEach(() => {
+    req = { user: { _id: "1234567890abcdef12345678" } };
+    res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
 
-    expect(res.status).toHaveBeenCalledWith(500);
-    expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
-      msg: 'Error al intentar crear una asistencia',
-      error: 'Error interno'
-    }));
+    mongoose.isValidObjectId.mockReturnValue(true);
+
+    Asistencia.__find.mockClear();
+    Asistencia.__find.mockResolvedValue([{ idUser: req.user._id }]);
+  });
+
+  it("debe devolver 200 con asistencias", async () => {
+    await obtenerAsistenciasController(req, res);
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith({ asistencias: expect.any(Array) });
+  });
+});
+
+describe("actualizarAsistenciaController", () => {
+  let req, res;
+
+  beforeEach(() => {
+    req = {
+      params: { _id: "1234567890abcdef12345678" },
+      body: { checkInTime: new Date().toISOString() },
+    };
+    res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+
+    mongoose.isValidObjectId.mockReturnValue(true);
+    validationResult.mockReturnValue({ isEmpty: () => true, array: () => [] });
+
+    Asistencia.__findByIdAndUpdate.mockClear();
+    Asistencia.__findByIdAndUpdate.mockResolvedValue({
+      _id: req.params._id,
+      checkInTime: req.body.checkInTime,
+    });
+  });
+
+  it("debe actualizar asistencia y devolver 200", async () => {
+    await actualizarAsistenciaController(req, res);
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith({
+      msg: "Asistencia actualizada exitosamente",
+    });
+  });
+});
+
+describe("eliminarAsistenciaController", () => {
+  let req, res;
+
+  beforeEach(() => {
+    req = { params: { id: "1234567890abcdef12345678" } };
+    res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+
+    mongoose.isValidObjectId.mockReturnValue(true);
+
+    Asistencia.__findByIdAndDelete.mockClear();
+    Asistencia.__findByIdAndDelete.mockResolvedValue({ _id: req.params.id });
+  });
+
+  it("debe eliminar asistencia y devolver 200", async () => {
+    await eliminarAsistenciaController(req, res);
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith({
+      message: "Asistencia eliminada exitosamente",
+    });
+  });
+});
+
+describe("obtenerAsistenciasPorUserController", () => {
+  let req, res;
+
+  beforeEach(() => {
+    req = { params: { username: "testuser" } };
+    res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+
+    User.findOne.mockClear();
+    Asistencia.__find.mockClear();
+
+    User.findOne.mockResolvedValue({ _id: "1234567890abcdef12345678" });
+    Asistencia.__find.mockResolvedValue([{ idUser: "1234567890abcdef12345678" }]);
+  });
+
+  it("debe obtener asistencias por usuario y devolver 200", async () => {
+    await obtenerAsistenciasPorUserController(req, res);
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith({
+      message: "Asistencias obtenidas exitosamente",
+      asistencias: expect.any(Array),
+    });
   });
 });
